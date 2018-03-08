@@ -17,18 +17,18 @@ This is the playground to test the code for handling a connection to a Bayer Con
 
 glucotux-cli uses the "Data Transfer Mode" of "ASTM Standard E 1394-91". So it reads out all available data records.
 
-The output file holds all result records each in line. The data is blank separated and read like this
+The output file holds all result records each in one line. The data is blank separated and read like this example.
 ```
 R    23   Glucose  201706141312  154mg/dL  B
 ```
 | **value** | **meaning** | **comment** |
 | - | - | - |
-| R | record type | 'H' header, 'P' not used, 'R' clincal result |
-| 23 | record number | start with '1' and runs up to '2000' |
+| R | record type | 'H' header, 'P' not used, 'R' clinical result |
+| 23 | record number | starts with '1' and may run up to '2000' |
 | Glucose | result type | |
 |  201706141312 | time stamp | YYYYMMDDhhmm |
 | 154mg/dL | result and unit | |
-| B | user mark | 'B' before meal, 'A' after meal, 'F' fastinf, 'N' none |
+| B | user mark | 'B' before meal, 'A' after meal, 'F' fasting, 'N' none |
 
 
 ## Environment
@@ -52,12 +52,17 @@ To remove all objects and binaries call
 ```
 $ make clean
 ```
+If you don't the want buid in debugging code you should comment out the first `CCFLAGS` line in `Makefile` an use the second one :
+```
+#CFLAGS = -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -D_DEBUG_
+CFLAGS = -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\"
+```
 
 ## Run
 ```
 $ bin/glucotux-cli -h
 
-"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Mar 10 2018
+"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Mar  8 2018
 
 Usage:
         bin/glucotux-cli [options] [-o <filename>]
@@ -75,7 +80,7 @@ It is required that you run the application FIRST and then attach the Bayer Cont
 ```
 $ sudo bin/glucotux-cli -o 180307.dat
 
-"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Mar 10 2018
+"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Mar  8 2018
 
 2000
 Glucotux CLI finished
@@ -84,7 +89,7 @@ If you do not  as this you will get the following error message :
 ```
 $ sudo bin/glucotux-cli -o 180307.dat
 
-"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Mar 10 2018
+"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Mar  8 2018
 
 -
 Communication can't be established if Contour device is just attached!
