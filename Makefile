@@ -77,7 +77,7 @@ glucotux-cli : $(OBJ)
 		$(DOBJ)/version.o
 
 no-version :
-	@rm -v -f $(DOBJ)/version.o
+	@rm -v -f $(DOBJ)/version.o > /dev/null
 
 glucotux-cli.o : glucotux-cli.c astm.h contour.h utils.h getargs.h version.h
 
@@ -97,7 +97,8 @@ version.o : version.c version.h
 
 ####### create object and executable directory if missing
 install:
-	@mkdir -p $(DBIN) $(DOBJ)
+	@if [ ! -d  $(DBIN) ]; then mkdir $(DBIN); fi
+	@if [ ! -e  $(DOBJ) ]; then mkdir $(DOBJ); fi
 
 ####### cleanup all objects and executables
 clean:
