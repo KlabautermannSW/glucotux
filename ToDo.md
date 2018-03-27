@@ -50,4 +50,4 @@ selectable with hooks
 
 How is the HbA <sub>1c</sub> determined?
 
-[See Wikipedia] (https://en.wikipedia.org/wiki/HbA1c#calculation table)
+[See Wikipedia](https://en.wikipedia.org/wiki/HbA1c#calculation table)
