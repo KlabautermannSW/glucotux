@@ -7,6 +7,8 @@ This project is done because I never found an application to read data from a Ba
 
 So in mid 2012 I decided to do it by myself.
 
+More information in German language can be found on my webpage [www.GlucoTux.de](http://www.glucotux.de/)
+
 ## gluctotux
 This application is not implemented yet!
 
@@ -96,6 +98,8 @@ Communication can't be established if Contour device is just attached!
 Please remove the Contour device and wait some seconds.
 Then FIRST start the program and SECOND attach the Contour device.
 ```
+# What's Planned
+Topics that I have on my to do list you may [find here](ToDo.md).
 
 # Credits
 
