@@ -1,11 +1,12 @@
 # To Do List
 
 ## File
-- [ ] change file format (timestamp, blood glucose, unit, marker, type, record number, record type)
+- [x] change file line format (timestamp, blood glucose, unit, marker, type, record type, record number)
 - [ ] read any older files
-- [ ] write all existing values ​​in **one** file
-- [ ] write all values ​​from ... to a file
+- [ ] write all existing values ​​into **one** file
+- [ ] write all values [​​from date ... to date] into a file
 
+## Graphic
 ## Input Widget
 for insulin and carbohydrates:
 - date
@@ -13,7 +14,6 @@ for insulin and carbohydrates:
 - insulin
 - carbohydrates
 
-## Graphic
 ### Buttons
 - [ ] read from the meter
 - [ ] read file
@@ -29,25 +29,25 @@ for insulin and carbohydrates:
 - [ ] carbohydrates
 
 ### Weekly Display
-- darkest line: day
-- brightest line: day - 6
+- darkest line: "youngest" day
+- brightest line: "youngest" day - 6
 
 
 - [ ] blood glucose
 - [ ] insulin
 - [ ] carbohydrates
 
-### From - To - Display
+### "From - To" Display
 - [ ] blood glucose
 - [ ] insulin
 - [ ] carbohydrates
 
-#### Blood glucose, Insulin, Carbohydrates
-selectable with hooks
+#### Blood Glucose, Insulin, Carbohydrates
+selectable with checkboxes
 
 ## Blood Glucose
 - [ ] as average
 
-How is the HbA <sub>1c</sub> determined?
+How is the HbA <sub>1c</sub> calculated?
 
-[See Wikipedia](https://en.wikipedia.org/wiki/HbA1c#calculation table)
+[See Wikipedia](https://de.wikipedia.org/wiki/HbA1c#Umrechnungstabelle)

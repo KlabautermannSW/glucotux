@@ -21,20 +21,20 @@
     76297 Stutensee
     Germany
 
-    file        version.c
+    ERRORS      errors.c
 
-    date        08.03.2018
+    date        27.03.2018
 
-    author      Uwe Jantzen (jantzen@klabautermann-software.de)
+    author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
-    brief       Version data
+    brief       Show error message to stderr.
 
-    details     The file version.o will be deleted after every compiling, so
-                date is always equal to the compile date.
+    details     Numbering starts at 256 (0x100) to prevent mangling with
+                Linux's internal errors.
 
     project     glucotux
     target      Linux
-    begin       03.03.2012
+    begin       27.03.2012
 
     note
 
@@ -43,10 +43,24 @@
 */
 
 
-#include "version.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "errors.h"
 
 
-char version_cli[] = VERSION_CLI;
-char version[] = VERSION;
-char compiledate[] = __DATE__;
-char title[] = "\n\"%s version V%s\", (c) Uwe Jantzen (Klabautermann-Software) %s\n\n";
+/*  function        void showerr( int error )
+
+    brief           Shows error description if available.
+                    Exits if fatal error.
+
+    param[in]       int error, error code
+*/
+void showerr( int error )
+    {
+    if( error == NOERR )
+        return;
+
+    fprintf(stderr, "\nError %d\n", error);
+
+    exit(error);
+    }

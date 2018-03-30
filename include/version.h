@@ -48,7 +48,9 @@
 
 
 extern char version[];
+extern char version_cli[];
 extern char compiledate[];
+extern char title[];
 
 
 #endif  // __VERSION_H__

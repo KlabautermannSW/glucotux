@@ -318,9 +318,9 @@ static int _interpret_astm_frame( FILE * file, int handle, char * buffer )
             strncpy(data.timestamp, elements + (8 * LEN_OF_ELEMENTS), 12);
 
             if( file )
-                fprintf(file, "%c  %4d  %8s  %s  %3d%s  %s\n", data.record_type, data.record_number, data.UTID, data.timestamp, data.result, data.unit, data.flags);
+                fprintf(file, "%s  %3d %s  %s  %8s  %c  %4d\n", data.timestamp, data.result, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
             if( is_verbose() )
-                printf(" %c  %4d  %8s  %s  %3d%s  %s\n", data.record_type, data.record_number, data.UTID, data.timestamp, data.result, data.unit, data.flags);
+                printf(" %s  %3d %s  %s  %8s  %c  %4d\n", data.timestamp, data.result, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
             printf("%c%4d", CR, data.record_number);                            // show progress
             fflush(stdout);
             break;

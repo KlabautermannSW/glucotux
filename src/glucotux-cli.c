@@ -52,7 +52,7 @@
 #include "astm.h"
 
 
-static const char * name = "Glucotux CLI";
+static const char * name = "GlucoTux CLI";
 
 
 /*  function        int main( int argc, char *argv[] )
@@ -73,7 +73,7 @@ int main( int argc, char *argv[] )
     int contour_type;
     char c;
 
-    printf("\n\"%s version V%s\", (c) Uwe Jantzen (Klabautermann-Software) %s\n\n", name, version, compiledate);
+    printf(title, name, version_cli, compiledate);
     getargs(argc, argv);
 
     handle = wait_for_contour(&contour_type);
