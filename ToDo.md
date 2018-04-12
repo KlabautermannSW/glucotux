@@ -6,8 +6,8 @@
 - [ ] write all existing values ​​into **one** file
 - [ ] write all values [​​from date ... to date] into a file
 
-## Graphic
-## Input Widget
+## Grafic User Interface
+### Input Widget
 for insulin and carbohydrates:
 - date
 - time
