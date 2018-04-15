@@ -21,17 +21,39 @@ glucotux-cli uses the "Data Transfer Mode" of "ASTM Standard E 1394-91". So it r
 
 The output file holds all result records each in one line. The data is blank separated and read like this example.
 ```
-R    23   Glucose  201706141312  154mg/dL  B
+201707210848  181 mg/dL  N   Glucose  R    17
 ```
 | **value** | **meaning** | **comment** |
 | - | - | - |
-| R | record type | 'H' header, 'P' not used, 'R' clinical result |
-| 23 | record number | starts with '1' and may run up to '2000' |
-| Glucose | result type | |
 |  201706141312 | time stamp | YYYYMMDDhhmm |
-| 154mg/dL | result and unit | |
-| B | user mark | 'B' before meal, 'A' after meal, 'F' fasting, 'N' none |
+| 154 | result | see explanation below the table |
+| mg/dL | unit | |
+| B | user mark | 'B' before meal, 'A' after meal, 'F' fasting, 'N' none (for Glucose only) |
+| Glucose | result type | 'Glucose', 'Carb', 'Insulin' |
+| 23 | record number | starts with '1' and may run up to '2000' |
+| R | record type | 'H' header, 'P' not used, 'R' clinical result |
 
+### result ###
+- Glucose
+ - number of units given with 'unit'
+- Carb
+ - number of units given by unit code (see below)
+- Insulin
+ - tenth of units (international 'U', german 'IE' or 'I.E.')
+
+### unit ###
+**Unit texts ginen in German !**
+- Glucose
+ - 'mmg/dl'
+ - 'mmol'
+- Carb
+ - '1' : Gramm
+ - '2' : BE
+ - '3' : KE
+- Insulin
+ - '1' : schnell wirksames Insulin
+ - '2' : langsam wirksames Insulin
+ - '3' : Mischinsulin
 
 ## Environment
 - Bayer Contour USB Next &reg;
