@@ -7,7 +7,7 @@ This project is done because I never found an application to read data from a Ba
 
 So in mid 2012 I decided to do it by myself.
 
-More information in German language can be found on my webpage [www.GlucoTux.de](http://www.glucotux.de/)
+More information in German language can be found on my webpage [www.GlucoTux.de](https://www.glucotux.de/)
 
 ## gluctotux
 This application is not implemented yet!
