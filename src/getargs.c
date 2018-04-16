@@ -23,7 +23,7 @@
 
     file        getargs.c
 
-    date        08.03.2018
+    date        30.03.2018
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -43,10 +43,13 @@
 
 
 #include <unistd.h>
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "errors.h"
 #include "globals.h"
+#include "debug.h"
 #include "utils.h"
 #include "getargs.h"
 
@@ -64,10 +67,21 @@ void getargs( int argc, char *argv[] )
     {
     int option = 0;
 
-    while( ( option = getopt(argc, argv, "vdo:h") ) != -1 )
+    while( ( option = getopt(argc, argv, "vdri:o:h") ) != -1 )
         {
         switch( option )
             {
+            case 'o':
+                set_logfile_name(optarg);                                       // error handling missing !!
+                break;
+            case 'i':
+                if( strlen(get_logfile_name()) == 0 )
+                    showerr(ERR_NO_LOGFILE);
+                set_oldfile_name(optarg);                                       // error handling missing !!
+                break;
+            case 'r' :
+                set_reformat(1);
+                break;
             case 'v':
                 set_verbose(1);
                 break;
@@ -76,9 +90,6 @@ void getargs( int argc, char *argv[] )
                 set_debug(1);
                 break;
 #endif  // _DEBUG_
-            case 'o':
-                set_logfile_name(optarg);                                       // error handling missing !!
-                break;
             case 'h':
             default:
                 showhelp(argv[0]);

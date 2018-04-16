@@ -154,16 +154,32 @@ void rotating_bar( void )
 void showhelp( char * name )
     {
     printf("Usage:\n");
-    printf("        %s [options] [-o <filename>]\n", name);
+#ifdef NIX
+    printf("        %s [options] [-o <outfile> [-i <infile>]]\n", name);
+#else   // NIX
+    printf("        %s [options] [-o <outfile>]\n", name);
+#endif  // NIX
     printf("Options:\n");
+    printf("        -o <outfile>  file to put the data in,\n");
+    printf("                      if not set data is printed to screen\n");
+#ifdef NIX
+    printf("        -i <infile>   file to get the data from,\n");
+    printf("                      if set data is read from <infile> and sorted into <outfile>\n");
+    printf("                      removing duplicate lines.\n");
+    printf("                      <outfile> and <infile> may NOT BE THE SAME!\n");
+    printf("        -r            If this option is selected the application reads the data\n");
+    printf("                      from <infile> using the data order that was implemented\n");
+    printf("                      before 30.3.2018. Then it writes back the data to <outfile>\n");
+    printf("                      using the current data order.\n");
+    printf("\n");
+#endif  // NIX
     printf("        -v            enable verbose mode\n");
 #ifdef _DEBUG_
     printf("        -d            enable debug mode\n");
 #endif  //  _DEBUG_
+    printf("\n");
     printf("        -h            show this help then stop without doing anything more\n");
     printf("\n");
-    printf("        -o <filename> file to put the data in,\n");
-    printf("                      if not set data is printed to screen\n");
     printf("\n");
     exit(0);
     }

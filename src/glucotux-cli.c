@@ -43,6 +43,7 @@
 
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include "getargs.h"
@@ -50,6 +51,7 @@
 #include "globals.h"
 #include "contour.h"
 #include "astm.h"
+#include "files.h"
 
 
 static const char * name = "GlucoTux CLI";
@@ -75,6 +77,15 @@ int main( int argc, char *argv[] )
 
     printf(title, name, version_cli, compiledate);
     getargs(argc, argv);
+
+    if( strlen(get_oldfile_name()) != 0 )
+        {
+        if( is_reformat() )
+            reformat(get_oldfile_name(), get_logfile_name());
+        else
+            mixfiles(get_oldfile_name(), get_logfile_name());
+        return 0;
+        }
 
     handle = wait_for_contour(&contour_type);
     if( handle < 0 )

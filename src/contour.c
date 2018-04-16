@@ -48,7 +48,9 @@
 #include <linux/hiddev.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include "errors.h"
 #include "globals.h"
+#include "debug.h"
 #include "utils.h"
 #include "contour.h"
 

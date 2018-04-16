@@ -47,8 +47,8 @@
 #define __GLOBALS_H__
 
 
-#include "errors.h"
-#include "debug.h"
+//#include "errors.h"
+//#include "debug.h"
 
 
 #define STX                                 0x02
@@ -64,11 +64,15 @@
 
 
 extern int is_verbose( void );
-extern int is_debug( void );
 extern void set_verbose( int flag );
 extern void set_debug( int flag );
+extern int is_debug( void );
+extern void set_reformat( int flag );
+extern int is_reformat( void );
 extern int set_logfile_name( char * filename );
 extern const char *  get_logfile_name( void );
+extern int set_oldfile_name( char * filename );
+extern const char *  get_oldfile_name( void );
 
 
 #endif  // __GLOBALS_H__

@@ -46,7 +46,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "errors.h"
 #include "globals.h"
+#include "debug.h"
 #include "utils.h"
 #include "contour.h"
 #include "astm.h"

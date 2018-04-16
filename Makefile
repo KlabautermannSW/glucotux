@@ -23,13 +23,15 @@
 #
 #   file        Makefile
 #
-#   date        08.03.2018
+#   date        30.03.2018
 #
 #   author      Uwe Jantzen (jantzen@klabautermann-software.de)
 #
-#   brief       Makefile for glucotux-cli
+#   brief       Makefile for glucotux and glucotux-cli
 #
-#   details     Check usb lines for a Bayer Contuor USB device
+#   details     Rebuilds all necessary files to create glucotux and glucotux-cli
+#				An object file depends on every include file's change to prevent
+#				missing a change in a nested include file.
 #
 #   project     glucotux
 #   target      Linux
@@ -40,60 +42,79 @@
 #   todo
 #
 
+# debug code
+# .PHONY: printvars
+# printvars:
+#	@$(foreach V,$(sort $(.VARIABLES)), \
+	$(if $(filter-out environ% default automatic, \
+	$(origin $V)),$(info $V=$($V) ($(value $V)))))
+
 vpath %.h include
 vpath %.c src
 vpath %.o obj
 
-CC  = gcc
-OBJ = glucotux-cli.o astm.o contour.o debug.o utils.o getargs.o globals.o version.o
+CC  := gcc
 
-DSRC = src
-DINC = include
-DOBJ = obj
-DBIN = bin
+DSRC := src
+DINC := include
+DOBJ := obj
+DBIN := bin
 
-VERSION = 0.03
+# create the list of object files from the ist of source files
+OBJ = $(shell ls $(DSRC) | sed 's/\(\.c\)/.o/' )
 
-CFLAGS = -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -D_DEBUG_
-#CFLAGS = -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\"
+VERSION := 1.00
+VERSION_CLI := 0.03
+
 CC_LDFLAGS = -lm
+# use this for the release version
+#CFLAGS = `pkg-config --cflags gtk+-3.0` -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\"
+# use this for the debug version
+CFLAGS = `pkg-config --cflags gtk+-3.0` -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -D_DEBUG_
 
-.c.o:
+.c.o: $(DOBJ)
 	$(CC) $(CFLAGS) -c $< -o $(DOBJ)/$@
 
 ####### Build rules
 
-all: install glucotux-cli no-version
+all: install glucotux-cli
 
-glucotux-cli : $(OBJ)
+
+glucotux-cli : $(OBJ) $(DBIN)
 	$(CC) $(CC_LDFLAGS) -o $(DBIN)/$@ \
 		$(DOBJ)/glucotux-cli.o \
 		$(DOBJ)/astm.o \
 		$(DOBJ)/contour.o \
+		$(DOBJ)/files.o \
 		$(DOBJ)/debug.o \
 		$(DOBJ)/utils.o \
+		$(DOBJ)/errors.o \
 		$(DOBJ)/getargs.o \
 		$(DOBJ)/globals.o \
 		$(DOBJ)/version.o
 
-no-version :
-	@rm -v -f $(DOBJ)/version.o > /dev/null
 
-glucotux-cli.o : glucotux-cli.c astm.h contour.h utils.h getargs.h version.h
+glucotux-cli.o : glucotux-cli.c  getargs.h version.h globals.h contour.h astm.h files.h
 
-astm.o : astm.c astm.h globals.h
+astm.o : astm.c errors.h globals.h debug.h utils.h contour.h astm.h
 
-contour.o : contour.c contour.h globals.h
+contour.o : contour.c errors.h globals.h debug.h utils.h contour.h
+
+files.o : files.c errors.h debug.h astm.h utils.h files.h
 
 debug.o : debug.c globals.h
 
-utils.o : utils.c
+utils.o : utils.c globals.h
 
-getargs.o : getargs.c getargs.h globals.h utils.h
+errors.o : errors.c errors.h
+
+getargs.o : getargs.c errors.h globals.h debug.h utils.h getargs.h
 
 globals.o : globals.c globals.h
 
-version.o : version.c version.h
+version.o : FORCE
+
+FORCE:
 
 ####### create object and executable directory if missing
 install:

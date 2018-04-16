@@ -23,7 +23,7 @@
 
     ERRORS      errors.c
 
-    date        27.03.2018
+    date        01.04.2018
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -45,7 +45,27 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "errors.h"
+
+
+static char * errors[] =
+    {
+    "Buffer to small",
+    "Can not open device",
+    "Vendor code and product code do not match",
+    "File name too long",
+    "Can not open output file",
+    "Can not open input file",
+    "Illegal frame number",
+    "Message terminator missing",
+    "No output file name given",
+    "Unknown data file line format",
+    "Data line does not contain the expected number of elements",
+    "Not enough memory to store data",
+    "Error when writing to a file",
+    0
+    };
 
 
 /*  function        void showerr( int error )
@@ -57,10 +77,28 @@
 */
 void showerr( int error )
     {
+    int count;
+
     if( error == NOERR )
         return;
 
-    fprintf(stderr, "\nError %d\n", error);
+    if( error < ERR_BUFFER_LEN )
+        {
+        fprintf(stderr, "\nError %3d : %s\n", error, strerror(error));
+        }
+    else
+        {
+        for( count = 0; errors[count]; ++count )
+            {
+            if(count == error - ERR_BUFFER_LEN )
+                break;
+            }
+
+            if( errors[count] )
+                fprintf(stderr, "\nError %3d : %s\n", error, errors[count]);
+            else
+                fprintf(stderr, "\nError %3d : unknown error code !\n", error);
+        }
 
     exit(error);
     }
