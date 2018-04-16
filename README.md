@@ -35,25 +35,25 @@ The output file holds all result records each in one line. The data is blank sep
 
 ### result ###
 - Glucose
- - number of units given with 'unit'
+  - number of units given with 'unit'
 - Carb
- - number of units given by unit code (see below)
+  - number of units given by unit code (see below)
 - Insulin
- - tenth of units (international 'U', german 'IE' or 'I.E.')
+  - tenth of units (international 'U', german 'IE' or 'I.E.')
 
 ### unit ###
 **Unit texts ginen in German !**
 - Glucose
- - 'mmg/dl'
- - 'mmol'
+  - 'mmg/dl'
+  - 'mmol'
 - Carb
- - '1' : Gramm
- - '2' : BE
- - '3' : KE
+  - '1' : Gramm
+  - '2' : BE
+  - '3' : KE
 - Insulin
- - '1' : schnell wirksames Insulin
- - '2' : langsam wirksames Insulin
- - '3' : Mischinsulin
+  - '1' : schnell wirksames Insulin
+  - '2' : langsam wirksames Insulin
+  - '3' : Mischinsulin
 
 ## Environment
 - Bayer Contour USB Next &reg;
@@ -86,17 +86,16 @@ CFLAGS = -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\"
 ```
 $ bin/glucotux-cli -h
 
-"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Mar  8 2018
+"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Apr 16 2018
 
 Usage:
         bin/glucotux-cli [options] [-o <filename>]
 Options:
+        -o <filename> file to put the data in,
+                      if not set data is printed to screen
         -v            enable verbose mode
         -d            enable debug mode
         -h            show this help then stop without doing anything more
-
-        -o <filename> file to put the data in,
-                      if not set data is printed to screen
 ```
 To get connection to a Bayer Contour USB Next &reg; device you must run the application with superuser permissions.
 
@@ -104,7 +103,7 @@ It is required that you run the application FIRST and then attach the Bayer Cont
 ```
 $ sudo bin/glucotux-cli -o 180307.dat
 
-"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Mar  8 2018
+"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Apr 16 2018
 
 2000
 Glucotux CLI finished
@@ -113,7 +112,7 @@ If you do not  as this you will get the following error message :
 ```
 $ sudo bin/glucotux-cli -o 180307.dat
 
-"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Mar  8 2018
+"Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Apr 16 2018
 
 -
 Communication can't be established if Contour device is just attached!
