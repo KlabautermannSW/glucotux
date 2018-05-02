@@ -44,6 +44,7 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <linux/hiddev.h>
 #include <stdio.h>
@@ -56,7 +57,7 @@
 
 
 #define HIDDEV_BUFFER_LEN                       64
-#define MAX_HID_DEVICES                          1
+#define MAX_HID_DEVICES                         16
 #define CONTOUR_USB_VENDOR_CODE             0x1a79
 #define CONTOUR_PATH                   "/dev/usb/"
 #define DEV_NAME                          "hiddev"
@@ -87,7 +88,7 @@ int open_contour( int * contour_type )
 
     *contour_type = 0;                                                          // no device found ...
 
-    for( hiddev_num = 0, handle = -1; (hiddev_num < MAX_HID_DEVICES) && (handle < 0); ++hiddev_num )
+    for( hiddev_num = 0, handle = -1; hiddev_num < MAX_HID_DEVICES; ++hiddev_num )
         {
         sprintf(device, "%s%s%d", CONTOUR_PATH, DEV_NAME, hiddev_num);
         debug("Try to open device %s\n", device);
@@ -105,8 +106,7 @@ int open_contour( int * contour_type )
         if( result < 0 )
             {
             debug("Getting report information failed : %d\n", result);
-            close(handle);
-            continue;
+            goto LoopEnd;
             }
 
         debug("Type :             %0u\n", info.report_type);
@@ -122,8 +122,7 @@ int open_contour( int * contour_type )
         if( result < 0 )
             {
             debug("Getting usage code failed : %d\n", result);
-            close(handle);
-            continue;
+            goto LoopEnd;
             }
 
         usage_code = uref.usage_code;
@@ -132,8 +131,7 @@ int open_contour( int * contour_type )
         if( result < 0 )
             {
             debug("Getting device information failed : %d\n", result);
-            close(handle);
-            continue;
+            goto LoopEnd;
             }
 
         debug("Bustype :          %0u\n", device_info.bustype);
@@ -152,6 +150,7 @@ int open_contour( int * contour_type )
             return handle;
             }
         debug("Vendor and product doesn't match\n");
+LoopEnd:
         close(handle);
         }
 
@@ -293,7 +292,7 @@ int write_contour( int handle, const char * buffer, int size )
 err2:
     verbose("HIDIOCSREPORT\n");
 err:
-    verbose("Error in IOCTL: %m\n");
+    verbose("Error in IOCTL: %s\n", strerror(result));
 
     return result;
     }
