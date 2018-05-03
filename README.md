@@ -28,10 +28,10 @@ The output file holds all result records each in one line. The data is blank sep
 |  201706141312 | time stamp | YYYYMMDDhhmm |
 | 154 | result | see explanation below the table |
 | mg/dL | unit | |
-| B | user mark | 'B' before meal, 'A' after meal, 'F' fasting, 'N' none (for Glucose only) |
+| B | user mark | 'B' before meal, 'A' after meal, 'F' fasting, 'N' none (for Glucose only), 'O' for Carb and Insulin |
 | Glucose | result type | 'Glucose', 'Carb', 'Insulin' |
-| 23 | record number | starts with '1' and may run up to '2000' |
 | R | record type | 'H' header, 'P' not used, 'R' clinical result |
+| 23 | record number | starts with '1' and may run up to '2000' |
 
 ### result ###
 - Glucose

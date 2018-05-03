@@ -312,17 +312,25 @@ static int _interpret_astm_frame( FILE * file, int handle, char * buffer )
             explode(components, elements + (4 * LEN_OF_ELEMENTS), component_delimiter, NUM_OF_COMPONENTS, LEN_OF_COMPONENTS);
             strncpy(data.unit, components, sizeof(data.unit) - 1);
             *components = *(elements + (6 * LEN_OF_ELEMENTS));
-            if( *components == 'M' )                                            // no user mark says
-                *(data.flags) = 'N';                                            //   "out of regular intervals"
-            else
-                *(data.flags) = *components;                                    // 'B' : before meal, 'A' : after meal, 'F' : fasting
+            switch( *components )
+                {
+                case 'M':
+                    *(data.flags) = 'N';                                            //   "out of regular intervals"
+                    break;
+                case 0x00:
+                    *(data.flags) = 'O';                                            //   "out of regular intervals"
+                    break;
+                default:
+                    *(data.flags) = *components;                                    // 'B' : before meal, 'A' : after meal, 'F' : fasting
+                    break;
+                }
             *(data.flags + 1) = 0;
             strncpy(data.timestamp, elements + (8 * LEN_OF_ELEMENTS), 12);
 
             if( file )
-                fprintf(file, "%s  %3d %s  %s  %8s  %c  %4d\n", data.timestamp, data.result, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
+                fprintf(file, "%s  %3d %-5s  %s  %-8s  %c  %4d\n", data.timestamp, data.result, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
             if( is_verbose() )
-                printf(" %s  %3d %s  %s  %8s  %c  %4d\n", data.timestamp, data.result, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
+                printf(" %s  %3d %-5s  %s  %-8s  %c  %4d\n", data.timestamp, data.result, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
             printf("%c%4d", CR, data.record_number);                            // show progress
             fflush(stdout);
             break;
