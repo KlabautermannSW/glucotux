@@ -322,12 +322,12 @@ void reformat( const char * oldfile_name, const char * newfile_name )
     FILE * oldfile;
     FILE * newfile;
     FILE * tmpfile;
-    int i;
-    int o;
+    int idx_old;
+    int idx_new;
     int oldfile_records;
     int newfile_records;
-    dataset * indata;
-    dataset * outdata;
+    dataset * olddata;
+    dataset * newdata;
 
     printf("Reformatting %s and %s to %s\n", oldfile_name, newfile_name, "glucotux.tmp");
 
@@ -344,39 +344,45 @@ void reformat( const char * oldfile_name, const char * newfile_name )
     if( tmpfile == 0 )
         showerr(errno);
 
-    indata = getfile(oldfile, &oldfile_records, 0);
-    outdata = getfile(newfile, &newfile_records, 1);
+    olddata = getfile(oldfile, &oldfile_records, 0);
+    newdata = getfile(newfile, &newfile_records, 1);
 
-    i = 0;
-    o = 0;
+    fclose(newfile);
+    fclose(oldfile);
+
+    idx_old = 0;
+    idx_new = 0;
 // ************************************************************************************************************************
 // der Fehler liegt in der while-Bedingung !!!!!!!!
 // ************************************************************************************************************************
-    while( ( i < oldfile_records ) || ( o < newfile_records ) )
+    while( ( idx_old < oldfile_records ) || ( idx_new < newfile_records ) )
         {
-        int res = strcmp((indata + i)->timestamp, (outdata + o)->timestamp);
+//        int res = strcmp((olddata + idx_old)->timestamp, (newdata + idx_new)->timestamp);
+        int res = memcmp(olddata + idx_old, newdata + idx_new, sizeof(dataset)-sizeof(int));
         if( res == 0 )
             {
-debug("equal %s == %s at in=%d, out=%d\n", (indata + i)->timestamp, (outdata + o)->timestamp, i, o);
-            printline(tmpfile, indata + i);
-            ++i;
-            ++o;
+debug("equal %s == %s at old=%d, new=%d\n", (olddata + idx_old)->timestamp, (newdata + idx_new)->timestamp, idx_old, idx_new);
+            printline(tmpfile, olddata + idx_old);
+            ++idx_old;
+            ++idx_new;
             }
-        else if( res < 0 )
+        else if( res < 0 && ( idx_old < oldfile_records ) )
             {
-debug("in smaller %s < %s at in=%d, out=%d\n", (indata + i)->timestamp, (outdata + o)->timestamp, i, o);
-            printline(tmpfile, indata + i);
-            ++i;
+debug("old smaller %s < %s at old=%d, new=%d\n", (olddata + idx_old)->timestamp, (newdata + idx_new)->timestamp, idx_old, idx_new);
+            printline(tmpfile, olddata + idx_old);
+            ++idx_old;
             }
-        else
+        else if( idx_new < newfile_records )
             {
-debug("out smaller %s >= %s at in=%d, out=%d\n", (indata + i)->timestamp, (outdata + o)->timestamp, i, o);
-            printline(tmpfile, outdata + o);
-            ++o;
+debug("no more old records %s at old=%d, new=%d\n", (newdata + idx_new)->timestamp, idx_old, idx_new);
+            printline(tmpfile, newdata + idx_new);
+            ++idx_new;
             }
         }
 
-    free(indata);
-    free(outdata);
+    fclose(tmpfile);
+
+    free(olddata);
+    free(newdata);
     free(tmpfile);
     }
