@@ -48,13 +48,13 @@
 
 typedef struct dataset_t
     {
-    char record_type;
-    int record_number;
-    char UTID[12];                                                              // Universal Test ID
+    char timestamp[13];
     int result;
     char unit[10];
     char flags[10];
-    char timestamp[13];
+    char UTID[12];                                                              // Universal Test ID
+    char record_type;
+    int record_number;
     } dataset;
 
 
