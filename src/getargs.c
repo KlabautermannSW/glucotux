@@ -75,8 +75,6 @@ void getargs( int argc, char *argv[] )
                 set_logfile_name(optarg);                                       // error handling missing !!
                 break;
             case 'i':
-                if( strlen(get_logfile_name()) == 0 )
-                    showerr(ERR_NO_LOGFILE);
                 set_oldfile_name(optarg);                                       // error handling missing !!
                 break;
             case 'r' :
@@ -99,5 +97,7 @@ void getargs( int argc, char *argv[] )
 
     debug("Options:\n");
     debug(" -o %s\n", get_logfile_name());
+    debug(" -i %s\n", get_oldfile_name());
+    debug(" -r\n");
     debug("\n");
     }

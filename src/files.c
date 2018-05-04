@@ -83,7 +83,7 @@ static int get_num_of_records( FILE * f )
     l = ftell(f);
     fseek(f, 0, SEEK_SET);
     debug("File length %ld\n", l);
-    l = l / i + 1;
+    l = l / i;
 
     debug("Records found %ld\n", l);
 
@@ -106,6 +106,8 @@ static void shrink( char * line, char c )
     char dst[LINE_LEN];
     char * p_dst;
 
+debug("before : %s\n", line);
+    memset(dst, 0, LINE_LEN);
     p_dst = dst;
     while( *p_line != 0 )
         {
@@ -128,8 +130,8 @@ static void shrink( char * line, char c )
         ++p_line;
         }
 
-    memset(line, 0, p_line-line);
     strcpy(line, dst);
+debug("after  : %s\n", line);
     }
 
 
@@ -155,7 +157,7 @@ static int read_line( dataset * data, char * line, int line_format )
     char * unit;
 
     shrink(line, ' ');
-    debug("Shrinked \"%s\"\n", line);
+    debug("Shrunken \"%s\"\n", line);
     memset(data, 0, sizeof(dataset));
     switch( line_format )
         {
@@ -250,7 +252,15 @@ static dataset * getfile( FILE * f, int * records, int line_format )
 */
 void printline( FILE * f, dataset * data )
     {
-    if( fprintf(f, "%s  %3d %s  %s  %8s  %c  %4d\n",
+    debug("printline : %s  %3d %-5s  %s  %-8s  %c  %4d\n",
+            data->timestamp,
+            data->result,
+            data->unit,
+            data->flags,
+            data->UTID,
+            data->record_type,
+            data->record_number);
+    if( fprintf(f, "%s  %3d %-5s  %s  %-8s  %c  %4d\n",
             data->timestamp,
             data->result,
             data->unit,
@@ -296,64 +306,71 @@ void mixfiles( const char * infile_name, const char * outfile_name )
     }
 
 
-/*  function        void reformat( const char * infile_name, const char * outfile_name )
+/*  function        void reformat( const char * oldfile_name, const char * newfile_name )
 
-    brief           Reads the data from <infile_name> using the data order that was
+    brief           Reads the data from <oldfile_name> using the data order that was
                     implemented before 30.3.2018. Then it writes back the data
-                    to <outfile_name> using the current data order.
+                    to <newfile_name> using the current data order.
 
-    param[in]       const char * infile_name, name of the file to read from
-    param[in]       const char * outfile_name, name of the file to write to
+    param[in]       const char * oldfile_name, name of the file to read from
+    param[in]       const char * newfile_name, name of the file to write to
 
     return          int
 */
-void reformat( const char * infile_name, const char * outfile_name )
+void reformat( const char * oldfile_name, const char * newfile_name )
     {
-    FILE * infile;
-    FILE * outfile;
+    FILE * oldfile;
+    FILE * newfile;
     FILE * tmpfile;
     int i;
     int o;
-    int infile_records;
-    int outfile_records;
+    int oldfile_records;
+    int newfile_records;
     dataset * indata;
     dataset * outdata;
 
-    printf("Reformatting %s and %s to %s\n", infile_name, outfile_name, "glucotux.tmp");
+    printf("Reformatting %s and %s to %s\n", oldfile_name, newfile_name, "glucotux.tmp");
 
-    debug("Opening %s\n", infile_name);
-    infile = fopen(infile_name, "r");
-    if( infile == 0 )
+    debug("Opening %s\n", oldfile_name);
+    oldfile = fopen(oldfile_name, "r");
+    if( oldfile == 0 )
         showerr(errno);
-    debug("Opening %s\n", outfile_name);
-    outfile = fopen(outfile_name, "r");
-    if( outfile == 0 )
+    debug("Opening %s\n", newfile_name);
+    newfile = fopen(newfile_name, "r");
+    if( newfile == 0 )
         showerr(errno);
     debug("Opening %s\n", "glucotux.tmp");
     tmpfile = fopen("glucotux.tmp", "w");
     if( tmpfile == 0 )
         showerr(errno);
 
-    indata = getfile(infile, &infile_records, 0);
-    outdata = getfile(outfile, &outfile_records, 1);
+    indata = getfile(oldfile, &oldfile_records, 0);
+    outdata = getfile(newfile, &newfile_records, 1);
 
     i = 0;
     o = 0;
-    while( ( i < infile_records ) && ( o < outfile_records ) )
+// ************************************************************************************************************************
+// der Fehler liegt in der while-Bedingung !!!!!!!!
+// ************************************************************************************************************************
+    while( ( i < oldfile_records ) || ( o < newfile_records ) )
         {
-        if( (indata + i)->timestamp == (outdata + o)->timestamp )
+        int res = strcmp((indata + i)->timestamp, (outdata + o)->timestamp);
+        if( res == 0 )
             {
+debug("equal %s == %s at in=%d, out=%d\n", (indata + i)->timestamp, (outdata + o)->timestamp, i, o);
             printline(tmpfile, indata + i);
             ++i;
             ++o;
             }
-        else if( (indata + i)->timestamp < (outdata + o)->timestamp )
+        else if( res < 0 )
             {
+debug("in smaller %s < %s at in=%d, out=%d\n", (indata + i)->timestamp, (outdata + o)->timestamp, i, o);
             printline(tmpfile, indata + i);
             ++i;
             }
         else
             {
+debug("out smaller %s >= %s at in=%d, out=%d\n", (indata + i)->timestamp, (outdata + o)->timestamp, i, o);
             printline(tmpfile, outdata + o);
             ++o;
             }
