@@ -23,14 +23,14 @@
 
     file        files.c
 
-    date        01.04.2018
+    date        04.05.2018
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
     brief       Merge data files (current and older format)
 
-    details     All data files are sorted chronological order, oldest data set
-                first, newest dataset last.
+    details     All data records are sorted in chronological order, oldest
+                record first, newest record last.
 
     project     glucotux
     target      Linux
@@ -46,9 +46,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include "errors.h"
 #include "debug.h"
 #include "astm.h"
@@ -63,10 +60,10 @@
 
 /*  function        static int get_num_of_records( FILE * f )
 
-    brief           Determines the number of data records (lines) in the data
+    brief           Calculates the number of data records (lines) in the data
                     file.
 
-    param[in]       FILE * f, data files handle
+    param[in]       FILE * f, data file's handle
 
     return          int, number of data records
 */
@@ -81,10 +78,9 @@ static int get_num_of_records( FILE * f )
     debug("Line length %d\n", i);
     fseek(f, 0, SEEK_END);
     l = ftell(f);
-    fseek(f, 0, SEEK_SET);
     debug("File length %ld\n", l);
+    fseek(f, 0, SEEK_SET);
     l = l / i;
-
     debug("Records found %ld\n", l);
 
     return l;
@@ -106,7 +102,6 @@ static void shrink( char * line, char c )
     char dst[LINE_LEN];
     char * p_dst;
 
-debug("before : %s\n", line);
     memset(dst, 0, LINE_LEN);
     p_dst = dst;
     while( *p_line != 0 )
@@ -131,7 +126,6 @@ debug("before : %s\n", line);
         }
 
     strcpy(line, dst);
-debug("after  : %s\n", line);
     }
 
 
@@ -161,7 +155,7 @@ static int read_line( dataset * data, char * line, int line_format )
     memset(data, 0, sizeof(dataset));
     switch( line_format )
         {
-        case 0:
+        case 0:     // the older format
             num_of_elements = explode(elements, line, ' ', NUM_OF_ELEMENTS, ELEMENT_LEN);
             debug("Number of elements in old record : %d\n", num_of_elements);
             if( num_of_elements == 6 )
@@ -180,7 +174,7 @@ static int read_line( dataset * data, char * line, int line_format )
             else
                 error = ERR_NUM_OF_DATA_IN_LINE;
             break;
-        case 1:
+        case 1:     // the newer format
             num_of_elements = explode(elements, line, ' ', NUM_OF_ELEMENTS, ELEMENT_LEN);
             debug("Number of elements in new record : %d\n", num_of_elements);
             if( num_of_elements == 7 )
@@ -203,6 +197,7 @@ static int read_line( dataset * data, char * line, int line_format )
 
     return error;
     }
+
 
 /*  function        static dataset * getfile( FILE * f, int * records, int line_format )
 
@@ -230,7 +225,7 @@ static dataset * getfile( FILE * f, int * records, int line_format )
     if( data == 0 )
         showerr(ERR_NOT_ENOUGH_MEMORY);
 
-    while( (n = getline(&line, &len, f)) != -1 )
+    while( (n = getline(&line, &len, f)) != -1 )    // getline allocates memory for "line"
         {
         error = read_line(data + i, line, line_format);
         showerr(error);
@@ -279,8 +274,6 @@ void printline( FILE * f, dataset * data )
 
     param[in]       const char * infile_name, name of the file to read from
     param[in]       const char * outfile_name, name of the file to write to
-
-    return          int
 */
 void mixfiles( const char * infile_name, const char * outfile_name )
     {
@@ -308,17 +301,18 @@ void mixfiles( const char * infile_name, const char * outfile_name )
 
 /*  function        void reformat( const char * oldfile_name, const char * newfile_name )
 
-    brief           Reads the data from <oldfile_name> using the data order that was
-                    implemented before 30.3.2018. Then it writes back the data
-                    to <newfile_name> using the current data order.
+    brief           Reads the data from <oldfile_name> using the data line's
+                    format that was implemented before 30.3.2018. Then it writes
+                    back the data to <newfile_name> using the current data
+                    line's format.
+                    4.5.2018 : output to file "glucotux.tmp".
 
     param[in]       const char * oldfile_name, name of the file to read from
     param[in]       const char * newfile_name, name of the file to write to
-
-    return          int
 */
 void reformat( const char * oldfile_name, const char * newfile_name )
     {
+    char tmpfile_name[] = "glucotux.tmp";
     FILE * oldfile;
     FILE * newfile;
     FILE * tmpfile;
@@ -329,7 +323,7 @@ void reformat( const char * oldfile_name, const char * newfile_name )
     dataset * olddata;
     dataset * newdata;
 
-    printf("Reformatting %s and %s to %s\n", oldfile_name, newfile_name, "glucotux.tmp");
+    printf("Reformatting %s and %s to %s\n", oldfile_name, newfile_name, tmpfile_name);
 
     debug("Opening %s\n", oldfile_name);
     oldfile = fopen(oldfile_name, "r");
@@ -339,8 +333,8 @@ void reformat( const char * oldfile_name, const char * newfile_name )
     newfile = fopen(newfile_name, "r");
     if( newfile == 0 )
         showerr(errno);
-    debug("Opening %s\n", "glucotux.tmp");
-    tmpfile = fopen("glucotux.tmp", "w");
+    debug("Opening %s\n", tmpfile_name);
+    tmpfile = fopen(tmpfile_name, "w");
     if( tmpfile == 0 )
         showerr(errno);
 
@@ -352,29 +346,22 @@ void reformat( const char * oldfile_name, const char * newfile_name )
 
     idx_old = 0;
     idx_new = 0;
-// ************************************************************************************************************************
-// der Fehler liegt in der while-Bedingung !!!!!!!!
-// ************************************************************************************************************************
     while( ( idx_old < oldfile_records ) || ( idx_new < newfile_records ) )
         {
-//        int res = strcmp((olddata + idx_old)->timestamp, (newdata + idx_new)->timestamp);
         int res = memcmp(olddata + idx_old, newdata + idx_new, sizeof(dataset)-sizeof(int));
         if( res == 0 )
             {
-debug("equal %s == %s at old=%d, new=%d\n", (olddata + idx_old)->timestamp, (newdata + idx_new)->timestamp, idx_old, idx_new);
             printline(tmpfile, olddata + idx_old);
             ++idx_old;
             ++idx_new;
             }
         else if( res < 0 && ( idx_old < oldfile_records ) )
             {
-debug("old smaller %s < %s at old=%d, new=%d\n", (olddata + idx_old)->timestamp, (newdata + idx_new)->timestamp, idx_old, idx_new);
             printline(tmpfile, olddata + idx_old);
             ++idx_old;
             }
         else if( idx_new < newfile_records )
             {
-debug("no more old records %s at old=%d, new=%d\n", (newdata + idx_new)->timestamp, idx_old, idx_new);
             printline(tmpfile, newdata + idx_new);
             ++idx_new;
             }
