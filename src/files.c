@@ -299,18 +299,18 @@ void mixfiles( const char * infile_name, const char * outfile_name )
     }
 
 
-/*  function        void reformat( const char * oldfile_name, const char * newfile_name )
+/*  function        void reformat( const char * infile_name, const char * newfile_name )
 
-    brief           Reads the data from <oldfile_name> using the data line's
+    brief           Reads the data from <infile_name> using the data line's
                     format that was implemented before 30.3.2018. Then it writes
                     back the data to <newfile_name> using the current data
                     line's format.
                     4.5.2018 : output to file "glucotux.tmp".
 
-    param[in]       const char * oldfile_name, name of the file to read from
+    param[in]       const char * infile_name, name of the file to read from
     param[in]       const char * newfile_name, name of the file to write to
 */
-void reformat( const char * oldfile_name, const char * newfile_name )
+void reformat( const char * infile_name, const char * newfile_name )
     {
     char tmpfile_name[] = "glucotux.tmp";
     FILE * oldfile;
@@ -323,10 +323,10 @@ void reformat( const char * oldfile_name, const char * newfile_name )
     dataset * olddata;
     dataset * newdata;
 
-    printf("Reformatting %s and %s to %s\n", oldfile_name, newfile_name, tmpfile_name);
+    printf("Reformatting %s and %s to %s\n", infile_name, newfile_name, tmpfile_name);
 
-    debug("Opening %s\n", oldfile_name);
-    oldfile = fopen(oldfile_name, "r");
+    debug("Opening %s\n", infile_name);
+    oldfile = fopen(infile_name, "r");
     if( oldfile == 0 )
         showerr(errno);
     debug("Opening %s\n", newfile_name);

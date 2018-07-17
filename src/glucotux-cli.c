@@ -78,14 +78,16 @@ int main( int argc, char *argv[] )
     printf(title, name, version_cli, compiledate);
     getargs(argc, argv);
 
-    if( strlen(get_oldfile_name()) != 0 )
+#if 0
+    if( strlen(get_infile_name()) != 0 )
         {
         if( is_reformat() )
-            reformat(get_oldfile_name(), get_logfile_name());
+            reformat(get_infile_name(), get_outfile_name());
         else
-            mixfiles(get_oldfile_name(), get_logfile_name());
+            mixfiles(get_infile_name(), get_outfile_name());
         return 0;
         }
+#endif
 
     handle = wait_for_contour(&contour_type);
     if( handle < 0 )

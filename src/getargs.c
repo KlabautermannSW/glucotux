@@ -23,7 +23,7 @@
 
     file        getargs.c
 
-    date        30.03.2018
+    date        06.05.2018
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -65,6 +65,7 @@
 */
 void getargs( int argc, char *argv[] )
     {
+    int i = 0;
     int option = 0;
 
     while( ( option = getopt(argc, argv, "vdri:o:h") ) != -1 )
@@ -72,13 +73,16 @@ void getargs( int argc, char *argv[] )
         switch( option )
             {
             case 'o':
-                set_logfile_name(optarg);                                       // error handling missing !!
+                set_outfile_name(optarg);                                       // error handling missing !!
                 break;
             case 'i':
-                set_oldfile_name(optarg);                                       // error handling missing !!
+                set_infile_name(optarg, i++);                                   // error handling missing !!
+                set_infile_number(i);
                 break;
             case 'r' :
                 set_reformat(1);
+                set_infile_name(optarg, i++);                                   // error handling missing !!
+                set_infile_number(i);
                 break;
             case 'v':
                 set_verbose(1);
@@ -96,8 +100,9 @@ void getargs( int argc, char *argv[] )
         }
 
     debug("Options:\n");
-    debug(" -o %s\n", get_logfile_name());
-    debug(" -i %s\n", get_oldfile_name());
+    debug(" -o %s\n", get_outfile_name());
+    for( int j=0; j<i; ++j )
+        debug(" -i %s\n", get_infile_name(j));
     debug(" -r\n");
     debug("\n");
     }

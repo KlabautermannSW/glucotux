@@ -366,7 +366,7 @@ int data_transfer_mode( int handle )
     char buffer[FRAME_LEN];
     int result = NOERR;
 
-    filename = get_logfile_name();
+    filename = get_outfile_name();
     if( *filename != 0 )
         {
         file = fopen(filename, "w+");

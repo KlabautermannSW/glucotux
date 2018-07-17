@@ -64,6 +64,7 @@ static char * errors[] =
     "Data line does not contain the expected number of elements",
     "Not enough memory to store data",
     "Error when writing to a file",
+    "Number of input files out of range [0 .. 2]",
     0
     };
 

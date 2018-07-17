@@ -61,16 +61,17 @@ DOBJ := obj
 DBIN := bin
 
 # create the list of object files from the ist of source files
-OBJ = $(shell ls $(DSRC) | sed 's/\(\.c\)/.o/' )
+# OBJ = $(shell ls $(DSRC) | sed 's/\(\.c\)/.o/' )
+OBJ := glucotux-cli.o astm.o contour.o files.o debug.o utils.o errors.o getargs.o globals.o version.o
 
 VERSION := 1.00
 VERSION_CLI := 0.03
 
 CC_LDFLAGS = -lm
 # use this for the release version
-#CFLAGS = `pkg-config --cflags gtk+-3.0` -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\"
+#CFLAGS = `-I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\"
 # use this for the debug version
-CFLAGS = `pkg-config --cflags gtk+-3.0` -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -D_DEBUG_
+CFLAGS = -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -D_DEBUG_
 
 .c.o: $(DOBJ)
 	$(CC) $(CFLAGS) -c $< -o $(DOBJ)/$@
@@ -110,7 +111,7 @@ errors.o : errors.c errors.h
 
 getargs.o : getargs.c errors.h globals.h debug.h utils.h getargs.h
 
-globals.o : globals.c globals.h
+globals.o : globals.c globals.h debug.h
 
 version.o : FORCE
 
@@ -122,6 +123,7 @@ install:
 	@if [ ! -e  $(DOBJ) ]; then mkdir $(DOBJ); fi
 
 ####### cleanup all objects and executables
+.PHONY clean:
 clean:
-	rm -v -f $(DOBJ)/* $(DBIN)/*
-	rmdir $(DOBJ) $(DBIN)
+	-rm -v -f $(DOBJ)/* $(DBIN)/*
+	-rmdir $(DOBJ) $(DBIN)

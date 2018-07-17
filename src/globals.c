@@ -23,7 +23,7 @@
 
     file        globals.c
 
-    date        08.03.2018
+    date        06.05.2018
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -53,8 +53,9 @@
 static int verbose_flag = 0;
 static int debug_flag = 0;
 static int reformat_flag = 0;
-static char logfile_name[FILENAME_LEN] = {0, };
-static char oldfile_name[FILENAME_LEN] = {0, };
+static char outfile_name[FILENAME_LEN] = {0, };
+static char infile_name[2][FILENAME_LEN] = {0, };
+static int infile_number = 0;
 
 
 /*  function        void set_verbose( int flag )
@@ -129,63 +130,96 @@ int is_reformat( void )
     }
 
 
-/*  function        int set_logfile_name( char * filename )
+/*  function        int set_outfile_name( char * filename )
 
     brief           Sets the the log file's name from filename.
 
     param[in]       char * filename, log file's name
 */
-int set_logfile_name( char * filename )
+int set_outfile_name( char * filename )
     {
     int len = strlen(filename);
 
     if( len > FILENAME_LEN - 1 )
         return ERR_FILE_NAME_LENGTH;
 
-    memcpy(logfile_name, filename, len+1);
+    memcpy(outfile_name, filename, len+1);
 
     return NOERR;
     }
 
 
-/*  function        const char *  get_logfile_name( void )
+/*  function        const char *  get_outfile_name( void )
 
     brief           Return the pointer to the log file's name.
 
     return          const char *, pointer to the log file's name
 */
-const char *  get_logfile_name( void )
+const char *  get_outfile_name( void )
     {
-    return logfile_name;
+    return outfile_name;
     }
 
 
-/*  function        int set_oldfile_name( char * filename )
+/*  function        int set_infile_name( char * filename, int i )
 
-    brief           Sets the the log file's name from filename.
+    brief           Sets the input file's name from filename.
 
-    param[in]       char * filename, log file's name
+    param[in]       char * filename, input file's name
+    param[in]       int i, index of input file
 */
-int set_oldfile_name( char * filename )
+int set_infile_name( char * filename, int i )
     {
     int len = strlen(filename);
+
+    if( i > 1 )
+        return ERR_NUM_OF_INFILES;
 
     if( len > FILENAME_LEN - 1 )
         return ERR_FILE_NAME_LENGTH;
 
-    memcpy(oldfile_name, filename, len+1);
+    memcpy(infile_name[i], filename, len+1);
 
     return NOERR;
     }
 
 
-/*  function        const char *  set_oldfile_name( void )
+/*  function        const char *  set_infile_name( int i )
 
-    brief           Return the pointer to the log file's name.
+    brief           Return the pointer to the input file's name.
 
-    return          const char *, pointer to the log file's name
+    return          const char *, pointer to the input file's name
 */
-const char *  get_oldfile_name( void )
+const char *  get_infile_name( int i )
     {
-    return oldfile_name;
+    if( i > 1 )
+        showerr(ERR_NUM_OF_INFILES);
+
+    return infile_name[i];
+    }
+
+
+/*  function        int set_infile_number( int i )
+
+    brief           Sets the number of input file
+
+    param[in]       int i, number of input files
+*/
+int set_infile_number( int i )
+    {
+    infile_number = i;
+
+    return NOERR;
+    }
+
+
+/*  function        const int get_infile_number( void )
+
+    brief           Return the number of input files.
+
+    return          const int, number of input files.
+*/
+const int get_infile_number( void )
+    {
+    return infile_number;
     }

@@ -69,10 +69,12 @@ extern void set_debug( int flag );
 extern int is_debug( void );
 extern void set_reformat( int flag );
 extern int is_reformat( void );
-extern int set_logfile_name( char * filename );
-extern const char *  get_logfile_name( void );
-extern int set_oldfile_name( char * filename );
-extern const char *  get_oldfile_name( void );
+extern int set_outfile_name( char * filename );
+extern const char *  get_outfile_name( void );
+extern int set_infile_name( char * filename, int i );
+extern const char *  get_infile_name( int i );
+extern int set_infile_number( int i );
+extern const int get_infile_number( void );
 
 
 #endif  // __GLOBALS_H__

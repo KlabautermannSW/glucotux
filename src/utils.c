@@ -23,7 +23,7 @@
 
     file        utils.c
 
-    date        08.03.2018
+    date        06.05.2018
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -154,25 +154,20 @@ void rotating_bar( void )
 void showhelp( char * name )
     {
     printf("Usage:\n");
-#ifdef NIX
-    printf("        %s [options] [-o <outfile> [-i <infile>]]\n", name);
-#else   // NIX
-    printf("        %s [options] [-o <outfile>]\n", name);
-#endif  // NIX
+    printf("        %s [options] [-o <outfile> [-i <infile> [-i|-r <infile>]]]\n", name);
     printf("Options:\n");
     printf("        -o <outfile>  file to put the data in,\n");
     printf("                      if not set data is printed to screen\n");
-#ifdef NIX
     printf("        -i <infile>   file to get the data from,\n");
     printf("                      if set data is read from <infile> and sorted into <outfile>\n");
     printf("                      removing duplicate lines.\n");
     printf("                      <outfile> and <infile> may NOT BE THE SAME!\n");
-    printf("        -r            If this option is selected the application reads the data\n");
+    printf("        -r <infile>   If this option is selected the application reads the data\n");
     printf("                      from <infile> using the data order that was implemented\n");
     printf("                      before 30.3.2018. Then it writes back the data to <outfile>\n");
     printf("                      using the current data order.\n");
+    printf("           If you give two <infile>s they are mixed and put out to <outfile>.\n");
     printf("\n");
-#endif  // NIX
     printf("        -v            enable verbose mode\n");
 #ifdef _DEBUG_
     printf("        -d            enable debug mode\n");

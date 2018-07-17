@@ -65,6 +65,7 @@
 #define ERR_NUM_OF_DATA_IN_LINE                     266
 #define ERR_NOT_ENOUGH_MEMORY                       267
 #define ERR_WRITE_TO_FILE                           268
+#define ERR_NUM_OF_INFILES                          269
 
 
 extern void showerr( int error );
