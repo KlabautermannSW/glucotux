@@ -23,7 +23,7 @@
 
     file        utils.c
 
-    date        06.05.2018
+    date        14.10.2018
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -162,6 +162,10 @@ void showhelp( char * name )
     printf("                      if set data is read from <infile> and sorted into <outfile>\n");
     printf("                      removing duplicate lines.\n");
     printf("                      <outfile> and <infile> may NOT BE THE SAME!\n");
+    printf("        -c <infile>   If this option is selected the application reads the data\n");
+    printf("                      from <infile> and writes it to <outfile> using CVS format as\n");
+    printf("                      follows:\n");
+    printf("                      date|time|glucose|glucose unit|insulin|insulin type|carb|carb unit|user mark\n");
     printf("        -r <infile>   If this option is selected the application reads the data\n");
     printf("                      from <infile> using the data order that was implemented\n");
     printf("                      before 30.3.2018. Then it writes back the data to <outfile>\n");

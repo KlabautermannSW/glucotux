@@ -23,7 +23,7 @@
 
     file        globals.c
 
-    date        06.05.2018
+    date        14.10.2018
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -52,6 +52,7 @@
 
 static int verbose_flag = 0;
 static int debug_flag = 0;
+static int cvs_out_flag = 0;
 static int reformat_flag = 0;
 static char outfile_name[FILENAME_LEN] = {0, };
 static char infile_name[2][FILENAME_LEN] = {0, };
@@ -103,6 +104,30 @@ void set_debug( int flag )
 int is_debug( void )
     {
     return debug_flag;
+    }
+
+
+/*  function        void set_cvs_out( int flag )
+
+    brief           Sets the cvs_out flag's state
+
+    param[in]       int flag, cvs_out flag
+*/
+void set_cvs_out( int flag )
+    {
+    cvs_out_flag = flag;
+    }
+
+
+/*  function        int is_cvs_out( void )
+
+    brief           Returns cvs_out flag's state
+
+    return          int, cvs_out flag's state
+*/
+int is_cvs_out( void )
+    {
+    return cvs_out_flag;
     }
 
 

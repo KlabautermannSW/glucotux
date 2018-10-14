@@ -23,7 +23,7 @@
 
     file        files.c
 
-    date        04.05.2018
+    date        14.10.2018
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -296,6 +296,110 @@ void mixfiles( const char * infile_name, const char * outfile_name )
 
     free(indata);
     free(outdata);
+    }
+
+
+/*  function        void csvformat( const char * infile_name, const char * outfile_name )
+
+    brief           Reads the data from <infile_name>,
+                    reformats them to a new csv file named <outfile_name>.
+                    The new format is as follows:
+                    date|time|glucose|glucose unit|insulin|insulin type|carb|carb unit|user mark
+
+    param[in]       const char * infile_name, name of the file to read from
+    param[in]       const char * outfile_name, name of the file to write to
+*/
+void csvformat( const char * infile_name, const char * outfile_name )
+    {
+    FILE * infile;
+    FILE * outfile;
+    int infile_records;
+    int i;
+    char line[256];
+    int chars_written;
+    char * p_line;
+    dataset * indata;
+    dataset * p_indata;
+
+    infile = fopen(infile_name, "r");
+    if( infile == 0 )
+        showerr(errno);
+    outfile = fopen(outfile_name, "w");
+    if( outfile == 0 )
+        showerr(errno);
+
+    indata = getfile(infile, &infile_records, 1);
+    p_indata = indata;
+
+    for( i = 0; i < infile_records; ++i )
+        {
+        p_line = line;
+        memcpy(p_line, p_indata->timestamp+6, 2);
+        p_line += 2;
+        *p_line++ = '.';
+        memcpy(p_line, p_indata->timestamp+4, 2);
+        p_line += 2;
+        *p_line++ = '.';
+        memcpy(p_line, p_indata->timestamp, 4);
+        p_line += 4;
+        *p_line++ = '|';
+        memcpy(p_line, p_indata->timestamp+8, 2);
+        p_line += 2;
+        *p_line++ = ':';
+        memcpy(p_line, p_indata->timestamp+10, 2);
+        p_line += 2;
+        *p_line++ = '|';
+        if( strcmp(p_indata->UTID, "Glucose") == 0 )
+            {
+            chars_written = sprintf(p_line, "%d|", p_indata->result);
+            p_line += chars_written;
+            chars_written = sprintf(p_line, "%s|", p_indata->unit);
+            }
+        else
+            chars_written = sprintf(p_line, "||");
+        p_line += chars_written;
+        if( strcmp(p_indata->UTID, "Insulin") == 0 )
+            {
+            chars_written = sprintf(p_line, "%d,%d|", p_indata->result/10, p_indata->result%10);
+            p_line += chars_written;
+            chars_written = sprintf(p_line, "%s|", p_indata->unit);
+            }
+        else
+            chars_written = sprintf(p_line, "||");
+        p_line += chars_written;
+        if( strcmp(p_indata->UTID, "Carb") == 0 )
+            {
+            chars_written = sprintf(p_line, "%d|", p_indata->result);
+            p_line += chars_written;
+            switch( *p_indata->unit )
+                {
+                case '1':
+                    chars_written = sprintf(p_line, "Gramm|");
+                    break;
+                case '2':
+                    chars_written = sprintf(p_line, "BE|");
+                    break;
+                case '3':
+                    chars_written = sprintf(p_line, "KE|");
+                    break;
+                default:
+                    chars_written = sprintf(p_line, "|");
+                    break;
+                }
+            }
+        else
+            chars_written = sprintf(p_line, "||");
+        p_line += chars_written;
+        *p_line++ = p_indata->flags[0];
+        *p_line++ = 0x0d;
+        *p_line++ = 0x0a;
+        *p_line++ = 0;                              // close string
+        debug("%s", line);
+        fprintf(outfile, "%s", line);
+        p_indata++;
+        }
+
+    free(indata);
     }
 
 

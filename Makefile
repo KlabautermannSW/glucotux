@@ -23,7 +23,7 @@
 #
 #   file        Makefile
 #
-#   date        17.07.2018
+#   date        14.10.2018
 #
 #   author      Uwe Jantzen (jantzen@klabautermann-software.de)
 #

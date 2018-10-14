@@ -23,7 +23,7 @@
 
     file        globals.h
 
-    date        08.03.2018
+    date        14.10.2018
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -67,6 +67,8 @@ extern int is_verbose( void );
 extern void set_verbose( int flag );
 extern void set_debug( int flag );
 extern int is_debug( void );
+extern void set_cvs_out( int flag );
+extern int is_cvs_out( void );
 extern void set_reformat( int flag );
 extern int is_reformat( void );
 extern int set_outfile_name( char * filename );

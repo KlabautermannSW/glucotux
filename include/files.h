@@ -48,6 +48,7 @@
 
 extern void printline( FILE * f, dataset * data );
 extern void mixfiles( const char * infile_name, const char * outfile_name );
+extern void csvformat( const char * infile_name, const char * outfile_name );
 extern void reformat( const char * infile_name, const char * outfile_name );
 
 

@@ -23,7 +23,7 @@
 
     file        glucotux-cli.c
 
-    date        08.03.2018
+    date        14.10.2018
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -75,13 +75,15 @@ int main( int argc, char *argv[] )
     printf(title, name, version_cli, compiledate);
     getargs(argc, argv);
 
-#if 0
-    if( strlen(get_infile_name()) != 0 )
+#if 1
+    if( strlen(get_infile_name(0)) != 0 )
         {
         if( is_reformat() )
-            reformat(get_infile_name(), get_outfile_name());
+            reformat(get_infile_name(0), get_outfile_name());
+        else if( is_cvs_out() )
+            csvformat(get_infile_name(0), get_outfile_name());
         else
-            mixfiles(get_infile_name(), get_outfile_name());
+            mixfiles(get_infile_name(0), get_outfile_name());
         return 0;
         }
 #endif

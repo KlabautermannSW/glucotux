@@ -23,7 +23,7 @@
 
     file        getargs.c
 
-    date        06.05.2018
+    date        14.10.2018
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -68,7 +68,7 @@ void getargs( int argc, char *argv[] )
     int i = 0;
     int option = 0;
 
-    while( ( option = getopt(argc, argv, "vdri:o:h") ) != -1 )
+    while( ( option = getopt(argc, argv, "vdcri:o:h") ) != -1 )
         {
         switch( option )
             {
@@ -78,6 +78,9 @@ void getargs( int argc, char *argv[] )
             case 'i':
                 set_infile_name(optarg, i++);                                   // error handling missing !!
                 set_infile_number(i);
+                break;
+            case 'c':
+                set_cvs_out(1);
                 break;
             case 'r' :
                 set_reformat(1);
