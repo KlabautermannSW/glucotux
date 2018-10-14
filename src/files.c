@@ -199,6 +199,27 @@ static int read_line( dataset * data, char * line, int line_format )
     }
 
 
+/*  function        static void compare_timestamp( const void * data1, const void * data2 )
+
+    brief           Compares to timestamps.
+                    Returns an integer less than, equal to, or greater than zero
+                    corresponding to whether the first timestamp is less than,
+                    equal to, or greater than the second timestamp.
+
+    param[in]       const void * data1, record to get the first timestamp from
+    param[in]       const void * data2, record to get the second timestamp from
+
+    return          int, result of comparison (s.o.)
+*/
+static int compare_timestamp( const void * data1, const void * data2 )
+    {
+    char * timestamp1 = ((dataset *)data1)->timestamp;
+    char * timestamp2 = ((dataset *)data2)->timestamp;
+
+    return strcmp( timestamp1, timestamp2);
+    }
+
+
 /*  function        static dataset * getfile( FILE * f, int * records, int line_format )
 
     brief           Get a file, allocate enough memory and read the data
@@ -232,20 +253,22 @@ static dataset * getfile( FILE * f, int * records, int line_format )
         ++i;
         }
 
+    qsort(data, *records, sizeof(dataset), compare_timestamp);
+
     free(line);
 
     return data;
     }
 
 
-/*  function        void printline( FILE * f, dataset * data )
+/*  function        static void printline( FILE * f, dataset * data )
 
     brief           Prints one record to the file
 
     param[in]       FILE * f, output file's handle
     param[in]       dataset * data, record to print into the file
 */
-void printline( FILE * f, dataset * data )
+static void printline( FILE * f, dataset * data )
     {
     debug("printline : %s  %3d %-5s  %s  %-8s  %c  %4d\n",
             data->timestamp,
@@ -391,7 +414,6 @@ void csvformat( const char * infile_name, const char * outfile_name )
             chars_written = sprintf(p_line, "||");
         p_line += chars_written;
         *p_line++ = p_indata->flags[0];
-        *p_line++ = 0x0d;
         *p_line++ = 0x0a;
         *p_line++ = 0;                              // close string
         debug("%s", line);
