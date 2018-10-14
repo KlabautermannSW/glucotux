@@ -54,9 +54,6 @@
 #include "files.h"
 
 
-static const char * name = "GlucoTux CLI";
-
-
 /*  function        int main( int argc, char *argv[] )
 
     brief           main function :

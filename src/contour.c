@@ -93,7 +93,6 @@ int open_contour( int * contour_type )
         sprintf(device, "%s%s%d", CONTOUR_PATH, DEV_NAME, hiddev_num);
         debug("Try to open device %s\n", device);
         rotating_bar();
-        fflush(stdout);
         handle = open(device, O_RDWR);
         debug("handle : %d\n", handle);
 
@@ -203,6 +202,7 @@ int wait_for_contour( int * contour_type )
 
     do
         {
+        rotating_bar();
         usleep(500 * 1000);
         handle = open_contour(contour_type);
         }

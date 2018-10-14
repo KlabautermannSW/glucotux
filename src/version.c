@@ -46,7 +46,8 @@
 #include "version.h"
 
 
-char version_cli[] = VERSION_CLI;
-char version[] = VERSION;
-char compiledate[] = __DATE__;
-char title[] = "\n\"%s version V%s\", (c) Uwe Jantzen (Klabautermann-Software) %s\n\n";
+const char version_cli[] = VERSION_CLI;
+const char version[] = VERSION;
+const char compiledate[] = __DATE__;
+const char title[] = "\n\"%s version V%s\", (c) Uwe Jantzen (Klabautermann-Software) %s\n\n";
+const char name[] = "GlucoTux";

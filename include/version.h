@@ -47,10 +47,11 @@
 #define __VERSION_H__
 
 
-extern char version[];
-extern char version_cli[];
-extern char compiledate[];
-extern char title[];
+extern const char version[];
+extern const char version_cli[];
+extern const char compiledate[];
+extern const char title[];
+extern const char name[];
 
 
 #endif  // __VERSION_H__
