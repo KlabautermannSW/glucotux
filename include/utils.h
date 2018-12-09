@@ -23,7 +23,7 @@
 
     file        utils.h
 
-    date        08.03.2018
+    date        09.11.2018
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -50,7 +50,7 @@ extern int explode( char * elements, char * str, char delimiter, int lines, int 
 extern void time2ger( char * dst, char * src );
 extern void rotating_bar( void );
 extern void showhelp( char * name );
-extern void showbuffer( const char * buffer, int size );
+extern void showbuffer( char const * buffer, int size );
 
 
 #endif  // __UTILS_H__

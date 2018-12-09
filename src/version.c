@@ -23,7 +23,7 @@
 
     file        version.c
 
-    date        08.03.2018
+    date        09.11.2018
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -46,8 +46,8 @@
 #include "version.h"
 
 
-const char version_cli[] = VERSION_CLI;
-const char version[] = VERSION;
-const char compiledate[] = __DATE__;
-const char title[] = "\n\"%s version V%s\", (c) Uwe Jantzen (Klabautermann-Software) %s\n\n";
-const char name[] = "GlucoTux";
+char const version_cli[] = VERSION_CLI;
+char const version[] = VERSION;
+char const compiledate[] = __DATE__;
+char const title[] = "\n\"%s version V%s\", (c) Uwe Jantzen (Klabautermann-Software) %s\n\n";
+char const name[] = "GlucoTux";

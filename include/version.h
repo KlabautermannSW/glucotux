@@ -23,7 +23,7 @@
 
     file        version.h
 
-    date        03.03.2012
+    date        09.11.2018
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -47,11 +47,11 @@
 #define __VERSION_H__
 
 
-extern const char version[];
-extern const char version_cli[];
-extern const char compiledate[];
-extern const char title[];
-extern const char name[];
+extern char const version[];
+extern char const version_cli[];
+extern char const compiledate[];
+extern char const title[];
+extern char const name[];
 
 
 #endif  // __VERSION_H__

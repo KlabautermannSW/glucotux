@@ -23,7 +23,7 @@
 
     file        files.c
 
-    date        14.10.2018
+    date        09.11.2018
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -146,8 +146,8 @@ static int read_line( dataset * data, char * line, int line_format )
     int error = NOERR;
     char elements[ELEMENT_LEN * NUM_OF_ELEMENTS] = {0, };
     int num_of_elements;
-    const char str_mg[] = "mg";
-    const char str_mml[] = "mm";
+    char const str_mg[] = "mg";
+    char const str_mml[] = "mm";
     char * unit;
 
     shrink(line, ' ');
@@ -199,19 +199,19 @@ static int read_line( dataset * data, char * line, int line_format )
     }
 
 
-/*  function        static void compare_timestamp( const void * data1, const void * data2 )
+/*  function        static void compare_timestamp( void const * data1, void const * data2 )
 
     brief           Compares to timestamps.
                     Returns an integer less than, equal to, or greater than zero
                     corresponding to whether the first timestamp is less than,
                     equal to, or greater than the second timestamp.
 
-    param[in]       const void * data1, record to get the first timestamp from
-    param[in]       const void * data2, record to get the second timestamp from
+    param[in]       void const * data1, record to get the first timestamp from
+    param[in]       void const * data2, record to get the second timestamp from
 
     return          int, result of comparison (s.o.)
 */
-static int compare_timestamp( const void * data1, const void * data2 )
+static int compare_timestamp( void const * data1, void const * data2 )
     {
     char * timestamp1 = ((dataset *)data1)->timestamp;
     char * timestamp2 = ((dataset *)data2)->timestamp;
@@ -290,15 +290,15 @@ static void printline( FILE * f, dataset * data )
     }
 
 
-/*  function        void mixfiles( const char * infile_name, const char * outfile_name )
+/*  function        void mixfiles( char const * infile_name, char const * outfile_name )
 
     brief           Reads the data from <infile_name> and sorts them into <outfile_name>
                     removing duplicate lines.
 
-    param[in]       const char * infile_name, name of the file to read from
-    param[in]       const char * outfile_name, name of the file to write to
+    param[in]       char const * infile_name, name of the file to read from
+    param[in]       char const * outfile_name, name of the file to write to
 */
-void mixfiles( const char * infile_name, const char * outfile_name )
+void mixfiles( char const * infile_name, char const * outfile_name )
     {
     FILE * infile;
     FILE * outfile;
@@ -322,17 +322,17 @@ void mixfiles( const char * infile_name, const char * outfile_name )
     }
 
 
-/*  function        void csvformat( const char * infile_name, const char * outfile_name )
+/*  function        void csvformat( char const * infile_name, char const * outfile_name )
 
     brief           Reads the data from <infile_name>,
                     reformats them to a new csv file named <outfile_name>.
                     The new format is as follows:
                     date|time|glucose|glucose unit|insulin|insulin type|carb|carb unit|user mark
 
-    param[in]       const char * infile_name, name of the file to read from
-    param[in]       const char * outfile_name, name of the file to write to
+    param[in]       char const * infile_name, name of the file to read from
+    param[in]       char const * outfile_name, name of the file to write to
 */
-void csvformat( const char * infile_name, const char * outfile_name )
+void csvformat( char const * infile_name, char const * outfile_name )
     {
     FILE * infile;
     FILE * outfile;
@@ -425,7 +425,7 @@ void csvformat( const char * infile_name, const char * outfile_name )
     }
 
 
-/*  function        void reformat( const char * infile_name, const char * newfile_name )
+/*  function        void reformat( char const * infile_name, char const * newfile_name )
 
     brief           Reads the data from <infile_name> using the data line's
                     format that was implemented before 30.3.2018. Then it writes
@@ -433,10 +433,10 @@ void csvformat( const char * infile_name, const char * outfile_name )
                     line's format.
                     4.5.2018 : output to file "glucotux.tmp".
 
-    param[in]       const char * infile_name, name of the file to read from
-    param[in]       const char * newfile_name, name of the file to write to
+    param[in]       char const * infile_name, name of the file to read from
+    param[in]       char const * newfile_name, name of the file to write to
 */
-void reformat( const char * infile_name, const char * newfile_name )
+void reformat( char const * infile_name, char const * newfile_name )
     {
     char tmpfile_name[] = "glucotux.tmp";
     FILE * oldfile;

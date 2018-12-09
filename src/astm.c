@@ -23,7 +23,7 @@
 
     file        astm.c
 
-    date        08.03.2018
+    date        09.11.2018
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -68,17 +68,17 @@ static char component_delimiter = 0;
 static char escape_delimiter = 0;
 
 
-/*  function        int send_astm( int handle, const char * buffer, int size )
+/*  function        int send_astm( int handle, char const * buffer, int size )
 
     brief           Send a message to the contour device
 
     param[in]       int handle, handle to the contour device
-    param[in]       char * buffer, buffer to write the contour device
+    param[in]       char const * buffer, buffer to write the contour device
     param[in]       int size, number of bytes to send
 
     return          int, 0
 */
-int send_astm( int handle, const char * buffer, int size )
+int send_astm( int handle, char const * buffer, int size )
     {
     int result;
     char in_buffer[BUFFER_LEN] = {0,};
@@ -125,7 +125,7 @@ static int _read( int handle, char * buffer )
         j += result;
         }
 
-    result = strlen((const char *)buffer);
+    result = strlen((char const *)buffer);
     showbuffer(buffer, result);
 
     return result;
@@ -360,7 +360,7 @@ static int _interpret_astm_frame( FILE * file, int handle, char * buffer )
 */
 int data_transfer_mode( int handle )
     {
-    const char * filename;
+    char const * filename;
     FILE * file = 0;
     int length;
     char buffer[FRAME_LEN];

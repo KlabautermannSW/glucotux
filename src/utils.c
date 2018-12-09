@@ -23,7 +23,7 @@
 
     file        utils.c
 
-    date        14.10.2018
+    date        09.11.2018
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -135,7 +135,7 @@ void time2ger( char * dst, char * src )
 */
 void rotating_bar( void )
     {
-    const char bars[] = { '-', '\\', '|', '/' };
+    char const bars[] = { '-', '\\', '|', '/' };
     static int idx = 0;
 
     putc(BS, stdout);
@@ -184,17 +184,17 @@ void showhelp( char * name )
     }
 
 
-/*  function        void showbuffer( const char * buffer, int size )
+/*  function        void showbuffer( char const * buffer, int size )
 
     brief           Displays a frame with decoded special characters, unknown
                     characters as their ascii number in hex and all others as
                     printable characters.
                     This is done in debug mode only!
 
-    param[in]       const char * buffer, message buffer
+    param[in]       char const * buffer, message buffer
     param[in]       size_t size, number of bytes in message
 */
-void showbuffer( const char * buffer, int size )
+void showbuffer( char const * buffer, int size )
     {
     size_t i;
 

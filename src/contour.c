@@ -245,17 +245,17 @@ int read_contour( int handle, char * buffer, int size )
     }
 
 
-/*  function        int write_contour( int handle, const char * buffer, int size )
+/*  function        int write_contour( int handle, char const * buffer, int size )
 
     brief           Write bytes to the contour device
 
     param[in]       int handle, handle to the contour device
-    param[in]       const char * buffer, bytes to write
+    param[in]       char const * buffer, bytes to write
     param[in]       int size, number of bytes to write
 
     return          int, error code
 */
-int write_contour( int handle, const char * buffer, int size )
+int write_contour( int handle, char const * buffer, int size )
     {
     struct hiddev_usage_ref ref;
     struct hiddev_report_info info;

@@ -23,7 +23,7 @@
 
     file        globals.c
 
-    date        14.10.2018
+    date        09.11.2018
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -174,13 +174,13 @@ int set_outfile_name( char * filename )
     }
 
 
-/*  function        const char *  get_outfile_name( void )
+/*  function        char const *  get_outfile_name( void )
 
     brief           Return the pointer to the log file's name.
 
-    return          const char *, pointer to the log file's name
+    return          char const *, pointer to the log file's name
 */
-const char *  get_outfile_name( void )
+char const *  get_outfile_name( void )
     {
     return outfile_name;
     }
@@ -209,13 +209,13 @@ int set_infile_name( char * filename, int i )
     }
 
 
-/*  function        const char *  set_infile_name( int i )
+/*  function        char const *  set_infile_name( int i )
 
     brief           Return the pointer to the input file's name.
 
-    return          const char *, pointer to the input file's name
+    return          char const *, pointer to the input file's name
 */
-const char *  get_infile_name( int i )
+char const *  get_infile_name( int i )
     {
     if( i > 1 )
         showerr(ERR_NUM_OF_INFILES);
@@ -238,13 +238,13 @@ int set_infile_number( int i )
     }
 
 
-/*  function        const int get_infile_number( void )
+/*  function        int const get_infile_number( void )
 
     brief           Return the number of input files.
 
-    return          const int, number of input files.
+    return          int const, number of input files.
 */
-const int get_infile_number( void )
+int const get_infile_number( void )
     {
     return infile_number;
     }

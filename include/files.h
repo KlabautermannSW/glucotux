@@ -23,7 +23,7 @@
 
     file        files.h
 
-    date        14.10.2018
+    date        09.11.2018
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -46,9 +46,9 @@
 #define __FILES_H__
 
 
-extern void mixfiles( const char * infile_name, const char * outfile_name );
-extern void csvformat( const char * infile_name, const char * outfile_name );
-extern void reformat( const char * infile_name, const char * outfile_name );
+extern void mixfiles( char const * infile_name, char const * outfile_name );
+extern void csvformat( char const * infile_name, char const * outfile_name );
+extern void reformat( char const * infile_name, char const * outfile_name );
 
 
 #endif  // __FILES_H__

@@ -23,7 +23,7 @@
 
     file        debug.c
 
-    date        08.03.2018
+    date        09.11.2018
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -47,14 +47,14 @@
 #include "globals.h"
 
 
-/*  function        void Debug( const char * format, ... )
+/*  function        void Debug( char const * format, ... )
 
     brief           Prints out debug data to stderr if debug is enabled.
 
-    param[in]       const char * format, format string for printing
+    param[in]       char const * format, format string for printing
     param[in]       ..., parameters referenced in format string
 */
-void Debug( const char * format, ... )
+void Debug( char const * format, ... )
     {
     va_list arg;
 
@@ -68,14 +68,14 @@ void Debug( const char * format, ... )
     }
 
 
-/*  function        void verbose( const char * format, ... )
+/*  function        void verbose( char const * format, ... )
 
     brief           Print out data if verbose is enabled.
 
-    param[in]       const char * format, format string for printing
+    param[in]       char const * format, format string for printing
     param[in]       ..., parameters referenced in format string
 */
-void verbose( const char * format, ... )
+void verbose( char const * format, ... )
     {
     va_list arg;
 
