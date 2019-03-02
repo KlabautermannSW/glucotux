@@ -23,7 +23,7 @@
 
     file        contour.h
 
-    date        09.11.2018
+    date        02.03.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -48,6 +48,7 @@
 
 #define CONTOUR_USB_CODE                    0x6002
 #define CONTOUR_USB_NEXT_CODE               0x7410
+#define CONTOUR_NEXT_ONE                    0x7800               // no tested yet !!
 
 
 extern int open_contour( int * contour_type );

@@ -23,7 +23,7 @@
 
     file        contour.c
 
-    date        08.03.2018
+    date        02.03.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -61,6 +61,14 @@
 #define CONTOUR_USB_VENDOR_CODE             0x1a79
 #define CONTOUR_PATH                   "/dev/usb/"
 #define DEV_NAME                          "hiddev"
+
+
+static const short int device_codes[] =
+    {
+    CONTOUR_USB_CODE,
+    CONTOUR_USB_NEXT_CODE,
+    CONTOUR_NEXT_ONE
+    };
 
 
 static int usage_code = 0;
@@ -142,11 +150,18 @@ int open_contour( int * contour_type )
         debug("Version :          %0u\n", device_info.version);
         debug("Num of Apps :      %0u\n", device_info.num_applications);
 
-        if( ( ( device_info.product == CONTOUR_USB_CODE ) || ( device_info.product == CONTOUR_USB_NEXT_CODE ) )
-            && ( device_info.vendor == CONTOUR_USB_VENDOR_CODE ) )
+        if( device_info.vendor == CONTOUR_USB_VENDOR_CODE )
             {
-            *contour_type = device_info.product;
-            return handle;
+            int i;
+
+            for( i = 0; i < (sizeof(device_codes) / sizeof(short int)); ++i )
+                {
+                if( device_info.product == device_codes[i] )
+                    {
+                    *contour_type = device_info.product;
+                    return handle;
+                    }
+                }
             }
         debug("Vendor and product doesn't match\n");
 LoopEnd:
@@ -179,6 +194,7 @@ void close_contour( int handle )
                     If a device is just attached when entering this function it
                     returns with an error because it is not possible to read
                     from a device more than once.
+                    Timeout is set to 30 seconds.
                     Not interruptable yet!
 
     param[out]      int * contour_type, type of contour device found
@@ -189,6 +205,7 @@ void close_contour( int handle )
 int wait_for_contour( int * contour_type )
     {
     int handle;
+    int max_checks = 60;
 
     handle = open_contour(contour_type);
     if( handle > 0 )
@@ -205,8 +222,12 @@ int wait_for_contour( int * contour_type )
         rotating_bar();
         usleep(500 * 1000);
         handle = open_contour(contour_type);
+        --max_checks;
         }
-    while( handle < 0 );
+    while( ( handle < 0 ) && ( max_checks ) );
+
+    if( max_checks <= 0 )
+        printf("\nNo Contour device found in between 30 seconds\n");
 
     return handle;
     }
