@@ -23,7 +23,7 @@
 
     file        globals.h
 
-    date        09.11.2018
+    date        08.03.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -47,9 +47,8 @@
 #define __GLOBALS_H__
 
 
-//#include "errors.h"
-//#include "debug.h"
-
+#define FALSE                               0
+#define TRUE                                (!FALSE)
 
 #define STX                                 0x02
 #define ETX                                 0x03
