@@ -23,7 +23,7 @@
 
     file        getargs.c
 
-    date        14.10.2018
+    date        09.03.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -56,43 +56,47 @@
 
 /*  function        void getargs( int argc, char *argv[] )
 
-    brief           Handles command line parameters
+    brief           Handles command line parameters.
+                    Exits program on error.
 
     param[in]       int argc, number of command line parameters
     param[in]       char *argv[], command line parameter list
-
-    return          int
 */
 void getargs( int argc, char *argv[] )
     {
     int i = 0;
     int option = 0;
 
+    debug("Options:\n");
     while( ( option = getopt(argc, argv, "vdcri:o:h") ) != -1 )
         {
         switch( option )
             {
             case 'o':
-                set_outfile_name(optarg);                                       // error handling missing !!
+                showerr(set_outfile_name(optarg));
+                debug(" -o %s\n", get_outfile_name());
                 break;
             case 'i':
-                set_infile_name(optarg, i++);                                   // error handling missing !!
+                showerr(set_infile_name(optarg, i++));
                 set_infile_number(i);
                 break;
             case 'c':
-                set_cvs_out(1);
+                set_cvs_out(TRUE);
+                debug(" -c\n");
                 break;
             case 'r' :
                 set_reformat(1);
-                set_infile_name(optarg, i++);                                   // error handling missing !!
+                showerr(set_infile_name(optarg, i++));
                 set_infile_number(i);
                 break;
             case 'v':
-                set_verbose(1);
+                set_verbose(TRUE);
+                debug(" -v\n");
                 break;
 #ifdef _DEBUG_
             case 'd':
-                set_debug(1);
+                set_debug(TRUE);
+                debug(" -d\n");
                 break;
 #endif  // _DEBUG_
             case 'h':
@@ -102,10 +106,9 @@ void getargs( int argc, char *argv[] )
             }
         }
 
-    debug("Options:\n");
-    debug(" -o %s\n", get_outfile_name());
     for( int j=0; j<i; ++j )
         debug(" -i %s\n", get_infile_name(j));
-    debug(" -r\n");
+    if( is_reformat() )
+        debug(" -r\n");
     debug("\n");
     }
