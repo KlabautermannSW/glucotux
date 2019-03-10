@@ -23,7 +23,7 @@
 
     file        files.c
 
-    date        09.11.2018
+    date        09.03.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -151,7 +151,7 @@ static int read_line( dataset * data, char * line, int line_format )
     char * unit;
 
     shrink(line, ' ');
-    debug("Shrunken \"%s\"\n", line);
+    debug("Shrunk \"%s\"\n", line);
     memset(data, 0, sizeof(dataset));
     switch( line_format )
         {
@@ -224,6 +224,7 @@ static int compare_timestamp( void const * data1, void const * data2 )
 
     brief           Get a file, allocate enough memory and read the data
                     into an array of type dataset.
+                    You have to free the memory elsewhere!!
 
     param[in]       FILE * f, file handle
     param[out]      int * records, number of records in the dataset arry
@@ -249,7 +250,7 @@ static dataset * getfile( FILE * f, int * records, int line_format )
     while( (n = getline(&line, &len, f)) != -1 )    // getline allocates memory for "line"
         {
         error = read_line(data + i, line, line_format);
-        showerr(error);
+        showerr(error);                             // exits on error, does nothing on no error
         ++i;
         }
 
@@ -294,6 +295,7 @@ static void printline( FILE * f, dataset * data )
 
     brief           Reads the data from <infile_name> and sorts them into <outfile_name>
                     removing duplicate lines.
+                    No functionality yet!!!
 
     param[in]       char const * infile_name, name of the file to read from
     param[in]       char const * outfile_name, name of the file to write to
@@ -316,6 +318,10 @@ void mixfiles( char const * infile_name, char const * outfile_name )
 
     indata = getfile(infile, &infile_records, 1);
     outdata = getfile(outfile, &outfile_records, 1);
+
+    /*
+        here the real functionaliry has to be implemented!
+    */
 
     free(indata);
     free(outdata);

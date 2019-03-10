@@ -23,7 +23,7 @@
 
     file        globals.c
 
-    date        09.11.2018
+    date        09.03.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -50,10 +50,10 @@
 #define FILENAME_LEN                        1024
 
 
-static int verbose_flag = 0;
-static int debug_flag = 0;
-static int cvs_out_flag = 0;
-static int reformat_flag = 0;
+static int verbose_flag = FALSE;
+static int debug_flag = FALSE;
+static int cvs_out_flag = FALSE;
+static int reformat_flag = FALSE;
 static char outfile_name[FILENAME_LEN] = {0, };
 static char infile_name[2][FILENAME_LEN] = {0, };
 static int infile_number = 0;
@@ -160,6 +160,8 @@ int is_reformat( void )
     brief           Sets the the log file's name from filename.
 
     param[in]       char * filename, log file's name
+
+    return          int, error code
 */
 int set_outfile_name( char * filename )
     {
@@ -178,7 +180,7 @@ int set_outfile_name( char * filename )
 
     brief           Return the pointer to the log file's name.
 
-    return          char const *, pointer to the log file's name
+    return          char const *, pointer to the output file's name
 */
 char const *  get_outfile_name( void )
     {
@@ -192,6 +194,8 @@ char const *  get_outfile_name( void )
 
     param[in]       char * filename, input file's name
     param[in]       int i, index of input file
+
+    return          int, error code
 */
 int set_infile_name( char * filename, int i )
     {
@@ -211,7 +215,8 @@ int set_infile_name( char * filename, int i )
 
 /*  function        char const *  set_infile_name( int i )
 
-    brief           Return the pointer to the input file's name.
+    brief           Returns the pointer to the i'th input file's name.
+                    Exits program on error!
 
     return          char const *, pointer to the input file's name
 */

@@ -23,13 +23,13 @@
 
     ERRORS      errors.c
 
-    date        01.04.2018
+    date        08.3.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
     brief       Show error message to stderr.
 
-    details     Numbering starts at 256 (0x100) to prevent mangling with
+    details     Numbering starts at -256 to prevent mangling with
                 Linux's internal errors.
 
     project     glucotux
@@ -79,19 +79,21 @@ static char * errors[] =
 void showerr( int error )
     {
     int count;
+    int idx;
 
     if( error == NOERR )
         return;
 
-    if( error < ERR_BUFFER_LEN )
+    idx = -1 * error;
+    if( idx < ERR_BUFFER_LEN )
         {
-        fprintf(stderr, "\nError %3d : %s\n", error, strerror(error));
+        fprintf(stderr, "\nError %3d : %s\n", idx, strerror(idx));
         }
     else
         {
         for( count = 0; errors[count]; ++count )
             {
-            if(count == error - ERR_BUFFER_LEN )
+            if(count == idx - ERR_BUFFER_LEN )
                 break;
             }
 

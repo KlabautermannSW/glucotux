@@ -23,7 +23,7 @@
 
     file        utils.c
 
-    date        09.11.2018
+    date        09.03.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -71,7 +71,7 @@
     param[in]   int length, maximum length of a sperate string - including
                 the terminating '0'
 
-    return      int, number of separate strings found
+    return      int, number of separated strings found
 */
 int explode( char * elements, char * str, char delimiter, int lines, int length )
     {
@@ -111,6 +111,7 @@ int explode( char * elements, char * str, char delimiter, int lines, int length 
     param[out]      char * dst, german formatted time and date
                     DD.MM.YYYY hh:mm
                     Has to be at least 17 byte long!
+                    NO lenmgth check done here!!
     param[in]       char * src, the timestamp read from a record
 */
 void time2ger( char * dst, char * src )
@@ -161,7 +162,7 @@ void showhelp( char * name )
     printf("        -i <infile>   file to get the data from,\n");
     printf("                      if set data is read from <infile> and sorted into <outfile>\n");
     printf("                      removing duplicate lines.\n");
-    printf("                      <outfile> and <infile> may NOT BE THE SAME!\n");
+    printf("                      <outfile> and <infile> must NOT BE THE SAME!\n");
     printf("        -c <infile>   If this option is selected the application reads the data\n");
     printf("                      from <infile> and writes it to <outfile> using CVS format as\n");
     printf("                      follows:\n");
@@ -170,7 +171,7 @@ void showhelp( char * name )
     printf("                      from <infile> using the data order that was implemented\n");
     printf("                      before 30.3.2018. Then it writes back the data to <outfile>\n");
     printf("                      using the current data order.\n");
-    printf("           If you give two <infile>s they are mixed and put out to <outfile>.\n");
+    printf("           If you give two <infile>s they are mixed and put out to <outfile> (not implemented yet!).\n");
     printf("\n");
     printf("        -v            enable verbose mode\n");
 #ifdef _DEBUG_

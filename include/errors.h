@@ -23,13 +23,13 @@
 
     ERRORS      errors.h
 
-    date        08.03.2018
+    date        08.03.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
     brief       Defines application specific erros.
 
-    details     Numbering starts at 256 (0x100) to prevent mangling with
+    details     Numbering starts at -256 to prevent mangling with
                 Linux's internal errors.
 
     project     glucotux
@@ -50,22 +50,22 @@
 #include <errno.h>
 
 
-#define NOERR                                         0
+#define NOERR                                          0
 
-#define ERR_BUFFER_LEN                              256
-#define ERR_OPENING_DEVICE                          257
-#define ERR_VENDOR_AND_PRODUCT_CODES_DO_NOT_MATCH   258
-#define ERR_FILE_NAME_LENGTH                        259
-#define ERR_OPEN_LOG_FILE                           260
-#define ERR_OPEN_IN_FILE                            261
-#define ERR_FRAME_NUMBER                            262
-#define ERR_MESSAGE_TERMINATOR                      263
-#define ERR_NO_LOGFILE                              264
-#define ERR_UNKNOWN_LINE_FORMAT                     265
-#define ERR_NUM_OF_DATA_IN_LINE                     266
-#define ERR_NOT_ENOUGH_MEMORY                       267
-#define ERR_WRITE_TO_FILE                           268
-#define ERR_NUM_OF_INFILES                          269
+#define ERR_BUFFER_LEN                              -256
+#define ERR_OPENING_DEVICE                          -257
+#define ERR_VENDOR_AND_PRODUCT_CODES_DO_NOT_MATCH   -258
+#define ERR_FILE_NAME_LENGTH                        -259
+#define ERR_OPEN_LOG_FILE                           -260
+#define ERR_OPEN_IN_FILE                            -261
+#define ERR_FRAME_NUMBER                            -262
+#define ERR_MESSAGE_TERMINATOR                      -263
+#define ERR_NO_LOGFILE                              -264
+#define ERR_UNKNOWN_LINE_FORMAT                     -265
+#define ERR_NUM_OF_DATA_IN_LINE                     -266
+#define ERR_NOT_ENOUGH_MEMORY                       -267
+#define ERR_WRITE_TO_FILE                           -268
+#define ERR_NUM_OF_INFILES                          -269
 
 
 extern void showerr( int error );

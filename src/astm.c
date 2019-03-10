@@ -27,7 +27,7 @@
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
-    brief       Handle com munication with countour device using ASTM specifications.
+    brief       Handle communication with countour device using ASTM specifications.
 
     details
 

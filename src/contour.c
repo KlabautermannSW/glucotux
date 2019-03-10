@@ -23,7 +23,7 @@
 
     file        contour.c
 
-    date        02.03.2019
+    date        08.03.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -112,7 +112,7 @@ int open_contour( int * contour_type )
         result = ioctl(handle, HIDIOCGREPORTINFO, &info);
         if( result < 0 )
             {
-            debug("Getting report information failed : %d\n", result);
+            debug("Getting report information failed : %d\n", errno);
             goto LoopEnd;
             }
 
@@ -137,7 +137,7 @@ int open_contour( int * contour_type )
         result = ioctl(handle, HIDIOCGDEVINFO, &device_info);
         if( result < 0 )
             {
-            debug("Getting device information failed : %d\n", result);
+            debug("Getting device information failed : %d\n", errno);
             goto LoopEnd;
             }
 
@@ -166,6 +166,7 @@ int open_contour( int * contour_type )
         debug("Vendor and product doesn't match\n");
 LoopEnd:
         close(handle);
+        return (-1 * errno);
         }
 
     return handle;
@@ -252,11 +253,11 @@ int read_contour( int handle, char * buffer, int size )
     int i;
 
     if( size < HIDDEV_BUFFER_LEN )
-        return ERR_BUFFER_LEN;
+        return -ERR_BUFFER_LEN;
 
     result = read(handle, inbuffer, sizeof(inbuffer));
     if( result < 0 )
-        return result;
+        return (-1 * errno);
 
     n = result / sizeof(struct hiddev_event);
     for( i = 0; i < n; ++i )
@@ -274,7 +275,7 @@ int read_contour( int handle, char * buffer, int size )
     param[in]       char const * buffer, bytes to write
     param[in]       int size, number of bytes to write
 
-    return          int, error code
+    return          int, 0 or negative error code
 */
 int write_contour( int handle, char const * buffer, int size )
     {
@@ -313,7 +314,8 @@ int write_contour( int handle, char const * buffer, int size )
 err2:
     verbose("HIDIOCSREPORT\n");
 err:
-    verbose("Error in IOCTL: %s\n", strerror(result));
+    verbose("Error in IOCTL: %s\n", strerror(errno));
+    result = -1 * errno;
 
     return result;
     }
