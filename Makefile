@@ -65,11 +65,12 @@ OBJ_CLI := glucotux-cli.o astm.o contour.o files.o debug.o utils.o errors.o geta
 
 VERSION := 1.00
 VERSION_CLI := 0.03
+COMMITDATE := $(shell git show --pretty=format:"%cd" --date=format:"%d.%m.%Y" -s)
 
 CC_LDFLAGS = -lm
-CFLAGS = -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -D_DEBUG_
+CFLAGS = -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -DCOMMITDATE=\"$(COMMITDATE)\" -D_DEBUG_
 # CFLAGS = `-I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\"
-CFLAGS_GTK = `pkg-config --cflags gtk+-3.0` -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -D_DEBUG_
+CFLAGS_GTK = `pkg-config --cflags gtk+-3.0` -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -DCOMMITDATE=\"$(COMMITDATE)\" -D_DEBUG_
 # CFLAGS_GTK = `pkg-config --cflags gtk+-3.0` -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\"
 
 ####### Build rules

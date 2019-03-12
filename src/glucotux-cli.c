@@ -23,7 +23,7 @@
 
     file        glucotux-cli.c
 
-    date        14.10.2018
+    date        12.03.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -72,7 +72,7 @@ int main( int argc, char *argv[] )
     int contour_type;
     char c;
 
-    printf(title, name, version_cli, compiledate);
+    printf(title, name, version_cli, commitdate);
     getargs(argc, argv);
 
 #if 1
