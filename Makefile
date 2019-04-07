@@ -23,7 +23,7 @@
 #
 #   file        Makefile
 #
-#   date        14.10.2018
+#   date        29.03.2019
 #
 #   author      Uwe Jantzen (jantzen@klabautermann-software.de)
 #
@@ -65,7 +65,13 @@ OBJ_CLI := glucotux-cli.o astm.o contour.o files.o debug.o utils.o errors.o geta
 
 VERSION := 1.00
 VERSION_CLI := 0.03
-COMMITDATE := $(shell git show --pretty=format:"%cd" --date=format:"%d.%m.%Y" -s)
+GITWITHPATH := /usr/bin/git
+HAVEGIT := $(shell find /usr/bin -type f -name "git")
+ifeq ($(HAVEGIT), $(GITWITHPATH))
+ COMMITDATE := $(shell git show --pretty=format:"%cd" --date=format:"%d.%m.%Y" -s)
+else
+ COMMITDATE := $(shell stat --printf=%y LICENSE | cut -f 1 -d ' ')
+endif
 
 CC_LDFLAGS = -lm
 CFLAGS = -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -DCOMMITDATE=\"$(COMMITDATE)\" -D_DEBUG_
