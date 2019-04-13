@@ -82,6 +82,31 @@ If you don't the want buid in debugging code you should comment out the first `C
 CFLAGS = -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\"
 ```
 
+## Add Your Glucometer to the System
+To prevent the need of "sudo" to get access to your glucometer you should add it to the linux system and enable access to it.
+
+Attach your glocometer to your computer. Then open a terminal and run "lsusb". You will see one of the lines identifying your glocometer.
+```
+$ lsusb
+Bus 001 Device 005: ID 1a79:7410 Bayer Health Care LLC Contour Next
+Bus 001 Device 006: ID 1a79:7800 Bayer Health Care LLC
+Bus 001 Device 007: ID 1a79:6002 Bayer Health Care LLC Contour
+```
+**Next do with superuser rights:**
+
+Create a new group:
+```
+# groupadd --system glucotux
+```
+Then create a new udev rule replacing the product id (7410 in this sample) with the id of your glucometer. That's the number behind the colon in the ID you found with "lsusb":
+```
+# echo 'ACTION=="add", KERNEL=="hiddev*", ATTRS{idVendor}=="1a79", ATTRS{idProduct}=="7410", GROUP="gluctux", MODE="0660"' > /etc/udev/rules.d/30-glucometer.rules
+```
+
+Use your preferred user administration tool and add the new group to your user.
+
+Then you have to relogin at your computer.
+
 ## Run
 ```
 $ bin/glucotux-cli -h
@@ -101,7 +126,7 @@ To get connection to a Bayer Contour USB Next &reg; device you must run the appl
 
 It is required that you run the application FIRST and then attach the Bayer Contour USB Next &reg; device to a USB port.
 ```
-$ sudo bin/glucotux-cli -o 180307.dat
+$ bin/glucotux-cli -o 180307.dat
 
 "Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Apr 16 2018
 
@@ -110,7 +135,7 @@ Glucotux CLI finished
 ```
 If you do not  as this you will get the following error message :
 ```
-$ sudo bin/glucotux-cli -o 180307.dat
+$ bin/glucotux-cli -o 180307.dat
 
 "Glucotux CLI version V0.03", (c) Uwe Jantzen (Klabautermann-Software) Apr 16 2018
 
