@@ -23,7 +23,7 @@
 
     ERRORS      errors.c
 
-    date        08.3.2019
+    date        14.04.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -72,7 +72,6 @@ static char * errors[] =
 /*  function        void showerr( int error )
 
     brief           Shows error description if available.
-                    Exits if fatal error.
 
     param[in]       int error, error code
 */
@@ -85,7 +84,7 @@ void showerr( int error )
         return;
 
     idx = -1 * error;
-    if( idx < ERR_BUFFER_LEN )
+    if( idx < -ERR_BUFFER_LEN )
         {
         fprintf(stderr, "\nError %3d : %s\n", idx, strerror(idx));
         }
@@ -93,7 +92,7 @@ void showerr( int error )
         {
         for( count = 0; errors[count]; ++count )
             {
-            if(count == idx - ERR_BUFFER_LEN )
+            if(count == idx + ERR_BUFFER_LEN )
                 break;
             }
 
@@ -102,6 +101,4 @@ void showerr( int error )
             else
                 fprintf(stderr, "\nError %3d : unknown error code !\n", error);
         }
-
-    exit(error);
     }
