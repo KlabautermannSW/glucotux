@@ -256,7 +256,7 @@ int read_contour( int handle, char * buffer, int size )
     int i;
 
     if( size < HIDDEV_BUFFER_LEN )
-        return -ERR_BUFFER_LEN;
+        return ERR_BUFFER_LEN;
 
     result = read(handle, inbuffer, sizeof(inbuffer));
     if( result < 0 )

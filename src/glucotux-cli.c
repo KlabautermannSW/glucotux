@@ -92,14 +92,20 @@ int main( int argc, char *argv[] )
     if( handle < 0 )
         exit(handle);
 
-    if( contour_type == CONTOUR_USB_CODE )
+    switch( contour_type )
         {
-        c = read_astm(handle);
-        if( c != ENQ )
+        case CONTOUR_USB_CODE:
+            c = read_astm(handle);
+            if( c != ENQ )
+                goto finish;
+        case CONTOUR_USB_NEXT_CODE:
+            usleep(5 * 1000 * 1000);
+            break;
+        case CONTOUR_NEXT_ONE:
+            break;
+        default:                                                                // unknown glucometer
             goto finish;
         }
-    else                                                                        // contour_type == CONTOUR_USB_NEXT_CODE
-        usleep(5 * 1000 * 1000);
 
     result = data_transfer_mode(handle);
     if( result )

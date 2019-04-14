@@ -23,7 +23,7 @@
 
     file        utils.h
 
-    date        09.11.2018
+    date        14.04.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 

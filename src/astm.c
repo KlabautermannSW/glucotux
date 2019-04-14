@@ -23,7 +23,7 @@
 
     file        astm.c
 
-    date        09.11.2018
+    date        14.04.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -125,7 +125,10 @@ static int _read( int handle, char * buffer )
         j += result;
         }
 
-    result = strlen((char const *)buffer);
+    if(j > 1 )
+        result = strlen(buffer + 4) + 4;
+    else
+        result = j;
     showbuffer(buffer, result);
 
     return result;
@@ -342,7 +345,7 @@ static int _interpret_astm_frame( FILE * file, int handle, char * buffer )
             fflush(stdout);
             break;
         case 'L':                                                               // Message Terminator Record
-            if( *(elements + (2 * LEN_OF_ELEMENTS)) != 'N' )
+            if( *(elements + (3 * LEN_OF_ELEMENTS)) != 'N' )
                 return ERR_MESSAGE_TERMINATOR;
             break;
         case 'P':                                                               // Patient Information Record
