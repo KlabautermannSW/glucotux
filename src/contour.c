@@ -23,7 +23,7 @@
 
     file        contour.c
 
-    date        08.03.2019
+    date        14.04.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -74,7 +74,7 @@ static const short int device_codes[] =
 static int usage_code = 0;
 
 
-/*  function        int contour( int * contour_type )
+/*  function        int open_contour( int * contour_type )
 
     brief           Searches for a Bayer Contour USB device and if found returns
                     a file handle to it.
@@ -92,7 +92,7 @@ int open_contour( int * contour_type )
     struct hiddev_report_info info;
     struct hiddev_devinfo device_info;
     struct hiddev_usage_ref uref;
-    int result;
+    int result = NOERR;
 
     *contour_type = 0;                                                          // no device found ...
 
@@ -112,6 +112,7 @@ int open_contour( int * contour_type )
         result = ioctl(handle, HIDIOCGREPORTINFO, &info);
         if( result < 0 )
             {
+            result = -errno;
             debug("Getting report information failed : %d\n", errno);
             goto LoopEnd;
             }
@@ -128,6 +129,7 @@ int open_contour( int * contour_type )
         result = ioctl(handle, HIDIOCGUCODE, &uref);
         if( result < 0 )
             {
+            result = -errno;
             debug("Getting usage code failed : %d\n", result);
             goto LoopEnd;
             }
@@ -137,6 +139,7 @@ int open_contour( int * contour_type )
         result = ioctl(handle, HIDIOCGDEVINFO, &device_info);
         if( result < 0 )
             {
+            result = -errno;
             debug("Getting device information failed : %d\n", errno);
             goto LoopEnd;
             }
@@ -166,7 +169,7 @@ int open_contour( int * contour_type )
         debug("Vendor and product doesn't match\n");
 LoopEnd:
         close(handle);
-        return (-1 * errno);
+        return result;
         }
 
     return handle;
@@ -257,7 +260,7 @@ int read_contour( int handle, char * buffer, int size )
 
     result = read(handle, inbuffer, sizeof(inbuffer));
     if( result < 0 )
-        return (-1 * errno);
+        return -errno;
 
     n = result / sizeof(struct hiddev_event);
     for( i = 0; i < n; ++i )
@@ -315,7 +318,7 @@ err2:
     verbose("HIDIOCSREPORT\n");
 err:
     verbose("Error in IOCTL: %s\n", strerror(errno));
-    result = -1 * errno;
+    result = -errno;
 
     return result;
     }

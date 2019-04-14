@@ -23,7 +23,7 @@
 
     file        files.c
 
-    date        09.03.2019
+    date        14.04.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -291,7 +291,7 @@ static void printline( FILE * f, dataset * data )
     }
 
 
-/*  function        void mixfiles( char const * infile_name, char const * outfile_name )
+/*  function        int mixfiles( char const * infile_name, char const * outfile_name )
 
     brief           Reads the data from <infile_name> and sorts them into <outfile_name>
                     removing duplicate lines.
@@ -299,9 +299,12 @@ static void printline( FILE * f, dataset * data )
 
     param[in]       char const * infile_name, name of the file to read from
     param[in]       char const * outfile_name, name of the file to write to
+
+    return          int, error code
 */
-void mixfiles( char const * infile_name, char const * outfile_name )
+int mixfiles( char const * infile_name, char const * outfile_name )
     {
+    int result = NOERR;
     FILE * infile;
     FILE * outfile;
     int infile_records;
@@ -311,10 +314,19 @@ void mixfiles( char const * infile_name, char const * outfile_name )
 
     infile = fopen(infile_name, "r");
     if( infile == 0 )
-        showerr(errno);
+        {
+        result = -errno;
+        showerr(result);
+        return result;
+        }
     outfile = fopen(outfile_name, "r");
     if( outfile == 0 )
-        showerr(errno);
+        {
+        result = -errno;
+        showerr(result);
+        fclose(infile);
+        return result;
+        }
 
     indata = getfile(infile, &infile_records, 1);
     outdata = getfile(outfile, &outfile_records, 1);
@@ -323,12 +335,15 @@ void mixfiles( char const * infile_name, char const * outfile_name )
         here the real functionaliry has to be implemented!
     */
 
+    fclose(outfile);
+    fclose(infile);
     free(indata);
     free(outdata);
+    return result;
     }
 
 
-/*  function        void csvformat( char const * infile_name, char const * outfile_name )
+/*  function        int csvformat( char const * infile_name, char const * outfile_name )
 
     brief           Reads the data from <infile_name>,
                     reformats them to a new csv file named <outfile_name>.
@@ -337,9 +352,12 @@ void mixfiles( char const * infile_name, char const * outfile_name )
 
     param[in]       char const * infile_name, name of the file to read from
     param[in]       char const * outfile_name, name of the file to write to
+
+    result          int, error code
 */
-void csvformat( char const * infile_name, char const * outfile_name )
+int csvformat( char const * infile_name, char const * outfile_name )
     {
+    int result = NOERR;
     FILE * infile;
     FILE * outfile;
     int infile_records;
@@ -352,10 +370,19 @@ void csvformat( char const * infile_name, char const * outfile_name )
 
     infile = fopen(infile_name, "r");
     if( infile == 0 )
-        showerr(errno);
+        {
+        result = -errno;
+        showerr(result);
+        return result;
+        }
     outfile = fopen(outfile_name, "w");
     if( outfile == 0 )
-        showerr(errno);
+        {
+        result = -errno;
+        showerr(result);
+        fclose(infile);
+        return result;
+        }
 
     indata = getfile(infile, &infile_records, 1);
     p_indata = indata;
@@ -427,11 +454,14 @@ void csvformat( char const * infile_name, char const * outfile_name )
         p_indata++;
         }
 
+    fclose(outfile);
+    fclose(infile);
     free(indata);
+    return result;
     }
 
 
-/*  function        void reformat( char const * infile_name, char const * newfile_name )
+/*  function        int reformat( char const * infile_name, char const * newfile_name )
 
     brief           Reads the data from <infile_name> using the data line's
                     format that was implemented before 30.3.2018. Then it writes
@@ -441,9 +471,12 @@ void csvformat( char const * infile_name, char const * outfile_name )
 
     param[in]       char const * infile_name, name of the file to read from
     param[in]       char const * newfile_name, name of the file to write to
+
+    return          int, erro code
 */
-void reformat( char const * infile_name, char const * newfile_name )
+int reformat( char const * infile_name, char const * newfile_name )
     {
+    int result = NOERR;
     char tmpfile_name[] = "glucotux.tmp";
     FILE * oldfile;
     FILE * newfile;
@@ -460,16 +493,30 @@ void reformat( char const * infile_name, char const * newfile_name )
     debug("Opening %s\n", infile_name);
     oldfile = fopen(infile_name, "r");
     if( oldfile == 0 )
-        showerr(errno);
+        {
+        result = -errno;
+        showerr(result);
+        return result;
+        }
     debug("Opening %s\n", newfile_name);
     newfile = fopen(newfile_name, "r");
     if( newfile == 0 )
-        showerr(errno);
+        {
+        result = -errno;
+        showerr(result);
+        fclose(oldfile);
+        return result;
+        }
     debug("Opening %s\n", tmpfile_name);
     tmpfile = fopen(tmpfile_name, "w");
     if( tmpfile == 0 )
-        showerr(errno);
-
+        {
+        result = -errno;
+        showerr(result);
+        fclose(oldfile);
+        fclose(newfile);
+        return result;
+        }
     olddata = getfile(oldfile, &oldfile_records, 0);
     newdata = getfile(newfile, &newfile_records, 1);
 
@@ -500,8 +547,11 @@ void reformat( char const * infile_name, char const * newfile_name )
         }
 
     fclose(tmpfile);
+    fclose(oldfile);
+    fclose(newfile);
 
     free(olddata);
     free(newdata);
     free(tmpfile);
+    return result;
     }
