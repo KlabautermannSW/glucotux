@@ -23,7 +23,7 @@
 
     file        glucotux-cli.c
 
-    date        12.03.2019
+    date        14.04.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -46,6 +46,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "errors.h"
 #include "getargs.h"
 #include "version.h"
 #include "globals.h"
@@ -68,6 +69,7 @@
 */
 int main( int argc, char *argv[] )
     {
+    int result = NOERR;
     int handle;
     int contour_type;
     char c;
@@ -75,7 +77,6 @@ int main( int argc, char *argv[] )
     printf(title, name, version_cli, commitdate);
     getargs(argc, argv);
 
-#if 1
     if( strlen(get_infile_name(0)) != 0 )
         {
         if( is_reformat() )
@@ -86,7 +87,6 @@ int main( int argc, char *argv[] )
             mixfiles(get_infile_name(0), get_outfile_name());
         return 0;
         }
-#endif
 
     handle = wait_for_contour(&contour_type);
     if( handle < 0 )
@@ -101,12 +101,14 @@ int main( int argc, char *argv[] )
     else                                                                        // contour_type == CONTOUR_USB_NEXT_CODE
         usleep(5 * 1000 * 1000);
 
-    data_transfer_mode(handle);
+    result = data_transfer_mode(handle);
+    if( result )
+        showerr(result);
 
 finish:
     close_contour(handle);
 
     printf("\n%s finished\n\n", name);
 
-    return 0;
+    return result;
     }

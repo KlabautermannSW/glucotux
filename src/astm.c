@@ -157,6 +157,7 @@ static int _read_astm_part( int handle, char * buffer )
     send_astm(handle, buffer, 1);
 
     result = _read(handle, buffer);
+
     return result;
     }
 
@@ -217,8 +218,14 @@ int _read_astm_frame( int handle, char * buffer, int size )
         if( (length + result) > size )
             {
             *in_buffer = NAK;
-            send_astm(handle, buffer, 1);
+            send_astm(handle, in_buffer, 1);
             return ERR_BUFFER_LEN;
+            }
+        if( result < 4 )
+            {
+            *in_buffer = NAK;
+            send_astm(handle, in_buffer, 1);
+            return ERR_UNKNOWN_LINE_FORMAT;
             }
         result -= 4;
         memcpy(buffer+length, in_buffer+4, result);
@@ -377,6 +384,11 @@ int data_transfer_mode( int handle )
     do
         {
         length = _read_astm_frame(handle, buffer, FRAME_LEN);
+        if( length <= 0 )                                             // error !
+            {
+            showerr(length);
+            return length;
+            }
         showbuffer(buffer, length);
         buffer[length] = 0;
         result = _interpret_astm_frame(file, handle, buffer);
