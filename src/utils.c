@@ -185,7 +185,7 @@ void showhelp( char * name )
     }
 
 
-/*  function        void showbuffer( char const * buffer, int size )
+/*  function        void showbuffer( const char * buffer, int size )
 
     brief           Displays a frame with decoded special characters, unknown
                     characters as their ascii number in hex and all others as
@@ -195,7 +195,7 @@ void showhelp( char * name )
     param[in]       char const * buffer, message buffer
     param[in]       size_t size, number of bytes in message
 */
-void showbuffer( char const * buffer, int size )
+void showbuffer( const char * buffer, int size )
     {
     size_t i;
 
@@ -205,7 +205,7 @@ void showbuffer( char const * buffer, int size )
     printf("Size : %d\n", size);
     for( i = 0; i < size; ++i, ++buffer )
         {
-        if( (*buffer >= ' ') && (*buffer <= 0xfe) )
+        if( (*buffer >= ' ') && (*buffer <= 0x7e) )
             {
             printf("%c", *buffer);
             }

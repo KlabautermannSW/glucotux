@@ -74,10 +74,9 @@ else
 endif
 
 CC_LDFLAGS = -lm
-CFLAGS = -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -DCOMMITDATE=\"$(COMMITDATE)\" -D_DEBUG_
-# CFLAGS = `-I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\"
-CFLAGS_GTK = `pkg-config --cflags gtk+-3.0` -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -DCOMMITDATE=\"$(COMMITDATE)\" -D_DEBUG_
-# CFLAGS_GTK = `pkg-config --cflags gtk+-3.0` -I $(DINC) -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\"
+CFLAGS = -I $(DINC) -funsigned-char -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -DCOMMITDATE=\"$(COMMITDATE)\"
+# CFLAGS := $(CFLAGS) -D_DEBUG_
+CFLAGS_GTK = `pkg-config --cflags gtk+-3.0` $(CFLAGS)
 
 ####### Build rules
 

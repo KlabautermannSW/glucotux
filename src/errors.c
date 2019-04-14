@@ -51,7 +51,7 @@
 
 static char * errors[] =
     {
-    "Buffer to small",
+    "Buffer too small",
     "Can not open device",
     "Vendor code and product code do not match",
     "File name too long",
