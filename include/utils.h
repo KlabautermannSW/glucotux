@@ -23,7 +23,7 @@
 
     file        utils.h
 
-    date        14.04.2019
+    date        19.04.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -46,11 +46,18 @@
 #define __UTILS_H__
 
 
+#ifdef _DEBUG_
+ #define showbuffer(b,s)                    Showbuffer((b),(s))
+#else
+ #define showbuffer(b,s)
+#endif
+
+
 extern int explode( char * elements, char * str, char delimiter, int lines, int length );
 extern void time2ger( char * dst, char * src );
 extern void rotating_bar( void );
 extern void showhelp( char * name );
-extern void showbuffer( const char * buffer, int size );
+extern void Showbuffer( const char * buffer, int size );
 
 
 #endif  // __UTILS_H__

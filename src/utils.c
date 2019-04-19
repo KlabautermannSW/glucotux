@@ -23,7 +23,7 @@
 
     file        utils.c
 
-    date        14.04.2019
+    date        19.04.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -185,7 +185,8 @@ void showhelp( char * name )
     }
 
 
-/*  function        void showbuffer( const char * buffer, int size )
+#ifdef _DEBUG_
+/*  function        void Showbuffer( const char * buffer, int size )
 
     brief           Displays a frame with decoded special characters, unknown
                     characters as their ascii number in hex and all others as
@@ -195,7 +196,7 @@ void showhelp( char * name )
     param[in]       char const * buffer, message buffer
     param[in]       size_t size, number of bytes in message
 */
-void showbuffer( const char * buffer, int size )
+void Showbuffer( const char * buffer, int size )
     {
     size_t i;
 
@@ -248,3 +249,4 @@ void showbuffer( const char * buffer, int size )
         }
     printf("\n");
     }
+#endif  // _DEBUG_

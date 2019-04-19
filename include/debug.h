@@ -23,7 +23,7 @@
 
     file        debug.h
 
-    date        09.11.2018
+    date        19.04.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -51,6 +51,7 @@
 #else
  #define debug(...)
 #endif
+
 
 extern void Debug( char const * format, ... );
 extern void verbose( char const * format, ... );

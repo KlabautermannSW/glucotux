@@ -23,7 +23,7 @@
 
     file        debug.c
 
-    date        09.11.2018
+    date        19.04.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -47,6 +47,7 @@
 #include "globals.h"
 
 
+#ifdef _DEBUG_
 /*  function        void Debug( char const * format, ... )
 
     brief           Prints out debug data to stderr if debug is enabled.
@@ -66,6 +67,7 @@ void Debug( char const * format, ... )
         fflush(stderr);
         }
     }
+#endif  // _DEBUG_
 
 
 /*  function        void verbose( char const * format, ... )
