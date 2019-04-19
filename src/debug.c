@@ -48,14 +48,14 @@
 
 
 #ifdef _DEBUG_
-/*  function        void Debug( char const * format, ... )
+/*  function        void Debug( const char *format, ... )
 
     brief           Prints out debug data to stderr if debug is enabled.
 
-    param[in]       char const * format, format string for printing
+    param[in]       const char *format, format string for printing
     param[in]       ..., parameters referenced in format string
 */
-void Debug( char const * format, ... )
+void Debug( const char *format, ... )
     {
     va_list arg;
 
@@ -70,14 +70,14 @@ void Debug( char const * format, ... )
 #endif  // _DEBUG_
 
 
-/*  function        void verbose( char const * format, ... )
+/*  function        void verbose( const char *format, ... )
 
     brief           Print out data if verbose is enabled.
 
-    param[in]       char const * format, format string for printing
+    param[in]       const char *format, format string for printing
     param[in]       ..., parameters referenced in format string
 */
-void verbose( char const * format, ... )
+void verbose( const char *format, ... )
     {
     va_list arg;
 

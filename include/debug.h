@@ -53,8 +53,8 @@
 #endif
 
 
-extern void Debug( char const * format, ... );
-extern void verbose( char const * format, ... );
+extern void Debug( const char *format, ... );
+extern void verbose( const char *format, ... );
 
 
 #endif  // __DEBUG_H__

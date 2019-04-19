@@ -58,7 +58,7 @@ typedef struct dataset_t
     } dataset;
 
 
-extern int send_astm( int handle, char const * buffer, int size );
+extern int send_astm( int handle, const char *buffer, int size );
 extern char read_astm( int handle );
 extern int data_transfer_mode( int handle );
 

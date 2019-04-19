@@ -291,18 +291,18 @@ static void printline( FILE * f, dataset * data )
     }
 
 
-/*  function        int mixfiles( char const * infile_name, char const * outfile_name )
+/*  function        int mixfiles( const char *infile_name, const char *outfile_name )
 
     brief           Reads the data from <infile_name> and sorts them into <outfile_name>
                     removing duplicate lines.
                     No functionality yet!!!
 
-    param[in]       char const * infile_name, name of the file to read from
-    param[in]       char const * outfile_name, name of the file to write to
+    param[in]       const char *infile_name, name of the file to read from
+    param[in]       const char *outfile_name, name of the file to write to
 
     return          int, error code
 */
-int mixfiles( char const * infile_name, char const * outfile_name )
+int mixfiles( const char *infile_name, const char *outfile_name )
     {
     int result = NOERR;
     FILE * infile;
@@ -343,19 +343,19 @@ int mixfiles( char const * infile_name, char const * outfile_name )
     }
 
 
-/*  function        int csvformat( char const * infile_name, char const * outfile_name )
+/*  function        int csvformat( const char *infile_name, const char *outfile_name )
 
     brief           Reads the data from <infile_name>,
                     reformats them to a new csv file named <outfile_name>.
                     The new format is as follows:
                     date|time|glucose|glucose unit|insulin|insulin type|carb|carb unit|user mark
 
-    param[in]       char const * infile_name, name of the file to read from
-    param[in]       char const * outfile_name, name of the file to write to
+    param[in]       const char *infile_name, name of the file to read from
+    param[in]       const char *outfile_name, name of the file to write to
 
     result          int, error code
 */
-int csvformat( char const * infile_name, char const * outfile_name )
+int csvformat( const char *infile_name, const char *outfile_name )
     {
     int result = NOERR;
     FILE * infile;
@@ -461,7 +461,7 @@ int csvformat( char const * infile_name, char const * outfile_name )
     }
 
 
-/*  function        int reformat( char const * infile_name, char const * newfile_name )
+/*  function        int reformat( const char *infile_name, const char *newfile_name )
 
     brief           Reads the data from <infile_name> using the data line's
                     format that was implemented before 30.3.2018. Then it writes
@@ -469,12 +469,12 @@ int csvformat( char const * infile_name, char const * outfile_name )
                     line's format.
                     4.5.2018 : output to file "glucotux.tmp".
 
-    param[in]       char const * infile_name, name of the file to read from
-    param[in]       char const * newfile_name, name of the file to write to
+    param[in]       const char *infile_name, name of the file to read from
+    param[in]       const char *newfile_name, name of the file to write to
 
     return          int, erro code
 */
-int reformat( char const * infile_name, char const * newfile_name )
+int reformat( const char *infile_name, const char *newfile_name )
     {
     int result = NOERR;
     char tmpfile_name[] = "glucotux.tmp";

@@ -59,7 +59,6 @@
 #define NUM_OF_COMPONENTS                   5
 #define LEN_OF_COMPONENTS                   20
 #define FRAME_LEN                           1024
-#define BUFFER_LEN                          64
 
 
 static char field_delimiter = '|';
@@ -68,22 +67,22 @@ static char component_delimiter = 0;
 static char escape_delimiter = 0;
 
 
-/*  function        int send_astm( int handle, char const * buffer, int size )
+/*  function        int send_astm( int handle, const char *buffer, int size )
 
     brief           Send a message to the contour device
 
     param[in]       int handle, handle to the contour device
-    param[in]       char const * buffer, buffer to write the contour device
+    param[in]       const char *buffer, buffer to write the contour device
     param[in]       int size, number of bytes to send
 
     return          int, 0
 */
-int send_astm( int handle, char const * buffer, int size )
+int send_astm( int handle, const char *buffer, int size )
     {
     int result;
-    char in_buffer[BUFFER_LEN] = {0,};
+    char in_buffer[TRANSFER_BUFFER_LEN] = {0,};
 
-    if( size > BUFFER_LEN-5 )
+    if( size > TRANSFER_BUFFER_LEN-5 )
         return ERR_BUFFER_LEN;
 
     usleep(30 * 1000);
@@ -102,7 +101,7 @@ int send_astm( int handle, char const * buffer, int size )
 
 /*  function        static int _read( int handle, char * buffer )
 
-    brief           Reads BUFFER_LEN bytes from the contour device
+    brief           Reads TRANSFER_BUFFER_LEN bytes from the contour device
 
     param[in]       int handle, handle to the contour device
     param[out]      char * buffer, buffer to fill in the bytes read
@@ -115,9 +114,9 @@ static int _read( int handle, char * buffer )
     int j = 0;
     int result;
 
-    while( j < BUFFER_LEN  )
+    while( j < TRANSFER_BUFFER_LEN  )
         {
-        result = read_contour(handle, buffer+j, BUFFER_LEN-j);
+        result = read_contour(handle, buffer+j, TRANSFER_BUFFER_LEN-j);
 
         if( result < 0 )
             break;
@@ -137,7 +136,7 @@ static int _read( int handle, char * buffer )
 
 /*  function        static int _read_astm_part( int handle, char * buffer )
 
-    brief           Read BUFFER_LEN bytes from the contour device
+    brief           Read TRANSFER_BUFFER_LEN bytes from the contour device
                     Every 16th call there has to be a wait time of 20ms to not
                     overrun the communications.
 
@@ -209,7 +208,7 @@ static int _verify_checksum( char * buffer )
 */
 int _read_astm_frame( int handle, char * buffer, int size )
     {
-    char in_buffer[BUFFER_LEN];
+    char in_buffer[TRANSFER_BUFFER_LEN];
     int result;
     int length = 0;
 
@@ -254,7 +253,7 @@ int _read_astm_frame( int handle, char * buffer, int size )
 char read_astm( int handle )
     {
     int result;
-    char buffer[BUFFER_LEN] = {0, };
+    char buffer[TRANSFER_BUFFER_LEN] = {0, };
 
     while( 1 )
         {
@@ -370,7 +369,7 @@ static int _interpret_astm_frame( FILE * file, int handle, char * buffer )
 */
 int data_transfer_mode( int handle )
     {
-    char const * filename;
+    const char *filename;
     FILE * file = 0;
     int length;
     char buffer[FRAME_LEN];

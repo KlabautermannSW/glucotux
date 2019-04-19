@@ -48,14 +48,16 @@
 
 #define CONTOUR_USB_CODE                    0x6002
 #define CONTOUR_USB_NEXT_CODE               0x7410
-#define CONTOUR_NEXT_ONE                    0x7800               // no tested yet !!
+#define CONTOUR_NEXT_ONE                    0x7800
+
+#define TRANSFER_BUFFER_LEN                 64
 
 
 extern int open_contour( int * contour_type );
 extern void close_contour( int handle );
 extern int wait_for_contour( int * contour_type );
 extern int read_contour( int handle, char * buffer, int size );
-extern int write_contour( int handle, char const * buffer, int size );
+extern int write_contour( int handle, const char *buffer, int size );
 
 
 #endif  // __CONTOUR_H__

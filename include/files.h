@@ -46,9 +46,9 @@
 #define __FILES_H__
 
 
-extern int mixfiles( char const * infile_name, char const * outfile_name );
-extern int csvformat( char const * infile_name, char const * outfile_name );
-extern int reformat( char const * infile_name, char const * outfile_name );
+extern int mixfiles( const char *infile_name, const char *outfile_name );
+extern int csvformat( const char *infile_name, const char *outfile_name );
+extern int reformat( const char *infile_name, const char *outfile_name );
 
 
 #endif  // __FILES_H__

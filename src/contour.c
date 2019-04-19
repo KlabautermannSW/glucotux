@@ -56,7 +56,7 @@
 #include "contour.h"
 
 
-#define HIDDEV_BUFFER_LEN                       64
+#define TRANSFER_BUFFER_LEN                       64
 #define MAX_HID_DEVICES                         16
 #define CONTOUR_USB_VENDOR_CODE             0x1a79
 #define CONTOUR_PATH                   "/dev/usb/"
@@ -250,12 +250,12 @@ int wait_for_contour( int * contour_type )
 */
 int read_contour( int handle, char * buffer, int size )
     {
-    struct hiddev_event inbuffer[HIDDEV_BUFFER_LEN];
+    struct hiddev_event inbuffer[TRANSFER_BUFFER_LEN];
     int result;
     int n;
     int i;
 
-    if( size < HIDDEV_BUFFER_LEN )
+    if( size < TRANSFER_BUFFER_LEN )
         return ERR_BUFFER_LEN;
 
     result = read(handle, inbuffer, sizeof(inbuffer));
@@ -270,17 +270,17 @@ int read_contour( int handle, char * buffer, int size )
     }
 
 
-/*  function        int write_contour( int handle, char const * buffer, int size )
+/*  function        int write_contour( int handle, const char *buffer, int size )
 
     brief           Write bytes to the contour device
 
     param[in]       int handle, handle to the contour device
-    param[in]       char const * buffer, bytes to write
+    param[in]       const char *buffer, bytes to write
     param[in]       int size, number of bytes to write
 
     return          int, 0 or negative error code
 */
-int write_contour( int handle, char const * buffer, int size )
+int write_contour( int handle, const char *buffer, int size )
     {
     struct hiddev_usage_ref ref;
     struct hiddev_report_info info;

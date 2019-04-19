@@ -193,7 +193,7 @@ void showhelp( char * name )
                     printable characters.
                     This is done in debug mode only!
 
-    param[in]       char const * buffer, message buffer
+    param[in]       const char *buffer, message buffer
     param[in]       size_t size, number of bytes in message
 */
 void Showbuffer( const char * buffer, int size )
