@@ -23,7 +23,7 @@
 #
 #   file        Makefile
 #
-#   date        29.03.2019
+#   date        28.07.2019
 #
 #   author      Uwe Jantzen (jantzen@klabautermann-software.de)
 #
@@ -65,17 +65,29 @@ OBJ_CLI := glucotux-cli.o astm.o contour.o files.o debug.o utils.o errors.o geta
 
 VERSION := 1.00
 VERSION_CLI := 0.03
-GITWITHPATH := /usr/bin/git
-HAVEGIT := $(shell find /usr/bin -type f -name "git")
-ifeq ($(HAVEGIT), $(GITWITHPATH))
+HAVEGIT =
+ifneq ($(wildcard $(shell which git)), )
+ HAVEGIT := $(wildcard .git/COMMIT_EDITMSG)
+endif
+ifneq ($(wildcard $(HAVEGIT)), )
  COMMITDATE := $(shell git show --pretty=format:"%cd" --date=format:"%d.%m.%Y" -s)
 else
- COMMITDATE := $(shell stat --printf=%y LICENSE | cut -f 1 -d ' ')
+ COMMITDATE := $(shell stat --printf=%y $(shell ls -1tr --group-directories-first src/* \
+ include/* Makefile 2> /dev/null | tail -n 1) | cut -f 1 -d ' ')
+endif
+
+ifneq ($(assert), 1)
+ DASSERT := -D_NDEBUG
+endif
+ifeq ($(debug), 1)
+ DDEBUG := -D_DEBUG_ -g
+else
+ OPTIMIZE := -O3
 endif
 
 CC_LDFLAGS = -lm
-CFLAGS = -I $(DINC) -funsigned-char -Wall -O3 -DVERSION=\"$(VERSION)\" -DVERSION_CLI=\"$(VERSION_CLI)\" -DCOMMITDATE=\"$(COMMITDATE)\"
-# CFLAGS := $(CFLAGS) -D_DEBUG_
+CFLAGS = -I $(DINC) -funsigned-char -Wall $(OPTIMIZE) -DVERSION=\"$(VERSION)\" \
+ -DVERSION_CLI=\"$(VERSION_CLI)\" -DCOMMITDATE=\"$(COMMITDATE)\" $(DDEBUG) $(DASSERT)
 CFLAGS_GTK = `pkg-config --cflags gtk+-3.0` $(CFLAGS)
 
 ####### Build rules
@@ -111,7 +123,7 @@ glucotux : install $(OBJ) $(DBIN)
 		$(DOBJ)/version.o \
 		`pkg-config --libs gtk+-3.0`
 
-glucotux-cli.o : glucotux-cli.c  getargs.h version.h globals.h contour.h astm.h files.h
+glucotux-cli.o : glucotux-cli.c errors.h getargs.h version.h globals.h contour.h astm.h files.h
 	$(CC) $(CFLAGS) -c $(DSRC)/glucotux-cli.c -o $(DOBJ)/glucotux-cli.o
 
 glucotux.o : glucotux.c getargs.h version.h globals.h graphs.h contour.h astm.h files.h
@@ -144,7 +156,7 @@ errors.o : errors.c errors.h
 getargs.o : getargs.c errors.h globals.h debug.h utils.h getargs.h
 	$(CC) $(CFLAGS) -c $(DSRC)/getargs.c -o $(DOBJ)/getargs.o
 
-globals.o : globals.c globals.h debug.h
+globals.o : globals.c globals.h
 	$(CC) $(CFLAGS) -c $(DSRC)/globals.c -o $(DOBJ)/globals.o
 
 version.o : FORCE
