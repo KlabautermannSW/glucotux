@@ -23,7 +23,7 @@
 
     file        astm.h
 
-    date        09.11.2018
+    date        05.05.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -48,7 +48,7 @@
 
 typedef struct dataset_t
     {
-    char timestamp[13];
+    char timestamp[15];                                                         // YYYYMMDDhhmmss
     int result;
     char unit[10];
     char flags[10];
@@ -58,9 +58,8 @@ typedef struct dataset_t
     } dataset;
 
 
-extern int send_astm( int handle, const char *buffer, int size );
 extern char read_astm( int handle );
-extern int data_transfer_mode( int handle );
+extern int data_transfer_mode( int handle, int contour_type );
 
 
 #endif  // __ASTM_H__

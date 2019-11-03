@@ -23,14 +23,13 @@
 
     ERRORS      errors.h
 
-    date        08.03.2019
+    date        05.05.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
     brief       Defines application specific erros.
 
-    details     Numbering starts at -256 to prevent mangling with
-                Linux's internal errors.
+    details     All application specific error codes are negative integers.
 
     project     glucotux
     target      Linux
@@ -50,22 +49,27 @@
 #include <errno.h>
 
 
-#define NOERR                                          0
+#define NOERR                                         0
 
-#define ERR_BUFFER_LEN                              -256
-#define ERR_OPENING_DEVICE                          -257
-#define ERR_VENDOR_AND_PRODUCT_CODES_DO_NOT_MATCH   -258
-#define ERR_FILE_NAME_LENGTH                        -259
-#define ERR_OPEN_LOG_FILE                           -260
-#define ERR_OPEN_IN_FILE                            -261
-#define ERR_FRAME_NUMBER                            -262
-#define ERR_MESSAGE_TERMINATOR                      -263
-#define ERR_NO_LOGFILE                              -264
-#define ERR_UNKNOWN_LINE_FORMAT                     -265
-#define ERR_NUM_OF_DATA_IN_LINE                     -266
-#define ERR_NOT_ENOUGH_MEMORY                       -267
-#define ERR_WRITE_TO_FILE                           -268
-#define ERR_NUM_OF_INFILES                          -269
+#define ERR_BUFFER_LEN                               -1
+#define ERR_OPENING_DEVICE                           -2
+#define ERR_VENDOR_AND_PRODUCT_CODES_DO_NOT_MATCH    -3
+#define ERR_READING_FROM_DEVICE                      -4
+#define ERR_WRITING_TO_DEVICE                        -5
+#define ERR_FILE_NAME_LENGTH                         -6
+#define ERR_OPEN_LOG_FILE                            -7
+#define ERR_OPEN_IN_FILE                             -8
+#define ERR_NO_START_OF_FRAME                        -9
+#define ERR_NO_FRAME_TERMINATION                    -10
+#define ERR_FRAME_NUMBER                            -11
+#define ERR_MESSAGE_TERMINATOR                      -12
+#define ERR_MESSAGE_CHECKSUM                        -13
+#define ERR_NO_LOGFILE                              -14
+#define ERR_UNKNOWN_LINE_FORMAT                     -15
+#define ERR_NUM_OF_DATA_IN_LINE                     -16
+#define ERR_NOT_ENOUGH_MEMORY                       -17
+#define ERR_WRITE_TO_FILE                           -18
+#define ERR_NUM_OF_INFILES                          -19
 
 
 extern void showerr( int error );

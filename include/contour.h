@@ -23,7 +23,7 @@
 
     file        contour.h
 
-    date        02.03.2019
+    date        05.053.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -53,11 +53,10 @@
 #define TRANSFER_BUFFER_LEN                 64
 
 
-extern int open_contour( int * contour_type );
 extern void close_contour( int handle );
-extern int wait_for_contour( int * contour_type );
-extern int read_contour( int handle, char * buffer, int size );
-extern int write_contour( int handle, const char *buffer, int size );
+extern int wait_for_contour( int * contour_type, int * handle );
+extern int read_contour( int handle, char * buffer, size_t size );
+extern int write_contour( int handle, const char *buffer, size_t size );
 
 
 #endif  // __CONTOUR_H__

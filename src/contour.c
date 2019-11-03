@@ -23,7 +23,7 @@
 
     file        contour.c
 
-    date        14.04.2019
+    date        05.05.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -49,6 +49,7 @@
 #include <linux/hiddev.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <assert.h>
 #include "errors.h"
 #include "globals.h"
 #include "debug.h"
@@ -56,7 +57,7 @@
 #include "contour.h"
 
 
-#define TRANSFER_BUFFER_LEN                       64
+#define TRANSFER_BUFFER_LEN                     64
 #define MAX_HID_DEVICES                         16
 #define CONTOUR_USB_VENDOR_CODE             0x1a79
 #define CONTOUR_PATH                   "/dev/usb/"
@@ -74,21 +75,20 @@ static const short int device_codes[] =
 static int usage_code = 0;
 
 
-/*  function        int open_contour( int * contour_type )
+/*  function        static int _open_contour( int * contour_type, int * handle )
 
     brief           Searches for a Bayer Contour USB device and if found returns
                     a file handle to it.
 
     param[out]      int * contour_type, type of contour device found
+    param{out]      int * handle, handle to the conour device if one was found
 
-    return          int, if negative, error code
-                         if positive, handle to the contour device
+    return          int, if not 0, error code
 */
-int open_contour( int * contour_type )
+static int _open_contour( int * contour_type, int * handle )
     {
     int hiddev_num;
     char device[256];
-    int handle;
     struct hiddev_report_info info;
     struct hiddev_devinfo device_info;
     struct hiddev_usage_ref uref;
@@ -96,23 +96,23 @@ int open_contour( int * contour_type )
 
     *contour_type = 0;                                                          // no device found ...
 
-    for( hiddev_num = 0, handle = -1; hiddev_num < MAX_HID_DEVICES; ++hiddev_num )
+    for( hiddev_num = 0, *handle = -1; hiddev_num < MAX_HID_DEVICES; ++hiddev_num )
         {
-        sprintf(device, "%s%s%d", CONTOUR_PATH, DEV_NAME, hiddev_num);
+        snprintf(device, 256, "%s%s%d", CONTOUR_PATH, DEV_NAME, hiddev_num);
         debug("Try to open device %s\n", device);
         rotating_bar();
-        handle = open(device, O_RDWR);
-        debug("handle : %d\n", handle);
+        *handle = open(device, O_RDWR);
+        debug("handle : %d\n", *handle);
 
-        if( handle < 0 )
-            continue;
+        if( *handle < 0 )
+            continue;                                                           // NO error at here because we probe for the device
 
         info.report_type = HID_REPORT_TYPE_OUTPUT;
         info.report_id = HID_REPORT_ID_FIRST;
-        result = ioctl(handle, HIDIOCGREPORTINFO, &info);
+        result = ioctl(*handle, HIDIOCGREPORTINFO, &info);
         if( result < 0 )
             {
-            result = -errno;
+            result = errno;
             debug("Getting report information failed : %d\n", errno);
             goto LoopEnd;
             }
@@ -126,20 +126,20 @@ int open_contour( int * contour_type )
         uref.field_index = 0;
         uref.usage_index = 0;
 
-        result = ioctl(handle, HIDIOCGUCODE, &uref);
+        result = ioctl(*handle, HIDIOCGUCODE, &uref);
         if( result < 0 )
             {
-            result = -errno;
+            result = errno;
             debug("Getting usage code failed : %d\n", result);
             goto LoopEnd;
             }
 
         usage_code = uref.usage_code;
 
-        result = ioctl(handle, HIDIOCGDEVINFO, &device_info);
+        result = ioctl(*handle, HIDIOCGDEVINFO, &device_info);
         if( result < 0 )
             {
-            result = -errno;
+            result = errno;
             debug("Getting device information failed : %d\n", errno);
             goto LoopEnd;
             }
@@ -162,17 +162,17 @@ int open_contour( int * contour_type )
                 if( device_info.product == device_codes[i] )
                     {
                     *contour_type = device_info.product;
-                    return handle;
+                    return 0;
                     }
                 }
             }
         debug("Vendor and product doesn't match\n");
 LoopEnd:
-        close(handle);
-        return result;
+        close(*handle);
+        break;
         }
 
-    return handle;
+    return 0;
     }
 
 
@@ -192,7 +192,7 @@ void close_contour( int handle )
     }
 
 
-/*  function        int wait_for_contour( int * contour_type )
+/*  function        int wait_for_contour( int * contour_type, int * handle )
 
     brief           Waits for a Contour USB device to become attached.
                     If a device is just attached when entering this function it
@@ -202,22 +202,24 @@ void close_contour( int handle )
                     Not interruptable yet!
 
     param[out]      int * contour_type, type of contour device found
+    param{out]      int * handle, handle to the conour device if one was found
 
-    return          int, if negative, error code
-                         if positive, file handle
+    return          int, if not 0, error code
 */
-int wait_for_contour( int * contour_type )
+int wait_for_contour( int * contour_type, int * handle )
     {
-    int handle;
+    int result;
     int max_checks = 60;
 
-    handle = open_contour(contour_type);
-    if( handle > 0 )
+    result = _open_contour(contour_type, handle);
+    if( result )
+        return result;                                                          // error
+    if( *handle > 0 )
         {
         printf("\nCommunication can't be established if Contour device is just attached!\n");
         printf("Please remove the Contour device and wait some seconds.\n");
         printf("Then FIRST start the program and SECOND attach the Contour device.\n\n");
-        close_contour(handle);
+        close_contour(*handle);
         exit(1);
         }
 
@@ -225,73 +227,85 @@ int wait_for_contour( int * contour_type )
         {
         rotating_bar();
         usleep(500 * 1000);
-        handle = open_contour(contour_type);
+        result = _open_contour(contour_type, handle);
+        if( result )
+            return result;
         --max_checks;
         }
-    while( ( handle < 0 ) && ( max_checks ) );
+    while( ( *handle < 0 ) && ( max_checks ) );
 
     if( max_checks <= 0 )
+        {
         printf("\nNo Contour device found in between 30 seconds\n");
+        return ERR_OPENING_DEVICE;
+        }
 
-    return handle;
+    return NOERR;
     }
 
 
-/*  function        int read_contour( int handle, char * buffer, int size )
+/*  function        int read_contour( int handle, char * buffer, size_t size )
 
     brief           Reads from contour device
 
     param[in]       int handle, handle to the contour device
     param[out]      char * buffer, buffer to fill in the bytes read
-    param[in]       int size, size of buffer
+    param[in]       size_t size, size of buffer
 
     return          int, if negative, error
                          if positive, number of bytes read
 */
-int read_contour( int handle, char * buffer, int size )
+int read_contour( int handle, char * buffer, size_t size )
     {
     struct hiddev_event inbuffer[TRANSFER_BUFFER_LEN];
     int result;
-    int n;
-    int i;
+    size_t i;
+    assert(handle >= 0);
+    assert(buffer);
+    assert(size);
+    assert(size >= TRANSFER_BUFFER_LEN);
 
     if( size < TRANSFER_BUFFER_LEN )
         return ERR_BUFFER_LEN;
 
     result = read(handle, inbuffer, sizeof(inbuffer));
     if( result < 0 )
-        return -errno;
-
-    n = result / sizeof(struct hiddev_event);
-    for( i = 0; i < n; ++i )
+        {
+        showerr(errno);
+        return ERR_READING_FROM_DEVICE;
+        }
+    result /= sizeof(struct hiddev_event);
+    for( i = 0; i < result; ++i )
         buffer[i] = inbuffer[i].value;
 
-    return n;
+    return result;
     }
 
 
-/*  function        int write_contour( int handle, const char *buffer, int size )
+/*  function        int write_contour( int handle, const char *buffer, size_t size )
 
     brief           Write bytes to the contour device
 
     param[in]       int handle, handle to the contour device
     param[in]       const char *buffer, bytes to write
-    param[in]       int size, number of bytes to write
+    param[in]       size_t size, number of bytes to write
 
-    return          int, 0 or negative error code
+    return          int, 0 or negative on error
 */
-int write_contour( int handle, const char *buffer, int size )
+int write_contour( int handle, const char *buffer, size_t size )
     {
     struct hiddev_usage_ref ref;
     struct hiddev_report_info info;
     int result = 0;
-    int idx;
-
-    --size;
+    size_t idx;
+    assert(handle >= 0);
+    assert(buffer);
+    assert(size);
 
     ref.report_id = *buffer++;
     ref.report_type = HID_REPORT_TYPE_OUTPUT;
     ref.field_index = 0;
+    --size;
 
     ref.usage_code = usage_code;
 
@@ -301,7 +315,7 @@ int write_contour( int handle, const char *buffer, int size )
         ref.value = *buffer++;
 
         result = ioctl(handle, HIDIOCSUSAGE, &ref);
-        if( result )
+        if( result < 0 )
             goto err;
        }
 
@@ -310,15 +324,12 @@ int write_contour( int handle, const char *buffer, int size )
     info.num_fields = 1;
 
     result = ioctl(handle, HIDIOCSREPORT, &info);
-    if( result )
-        goto err2;
+    if( result < 0 )
+        goto err;
 
     return 0;
-err2:
-    verbose("HIDIOCSREPORT\n");
 err:
-    verbose("Error in IOCTL: %s\n", strerror(errno));
-    result = -errno;
+    showerr(errno);
 
-    return result;
+    return ERR_WRITING_TO_DEVICE;
     }

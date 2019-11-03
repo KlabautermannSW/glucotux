@@ -23,7 +23,7 @@
 
     file        utils.c
 
-    date        19.04.2019
+    date        04.05.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -45,6 +45,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "globals.h"
 
 
@@ -65,7 +66,7 @@
 
     param[out]  char * elements, handled as an array with <lines> lines of a
                 length of <length>
-    param[in]   char * str, the string to explode
+    param[in]   char * str, the string to explode (must be terminated with a '0')
     param[in]   char delimiter, separates the string's elements
     param[in]   int lines, number of separate strings that fits into elements
     param[in]   int length, maximum length of a sperate string - including
@@ -80,7 +81,14 @@ int explode( char * elements, char * str, char delimiter, int lines, int length 
     int line;
     int len;
 
+    assert(elements);
+    assert(str);
+    assert(lines);
+    assert(length);
+
     len = strlen(str);
+    assert(len);
+
     memset(elements, 0, lines * length);                                        // now all elements are empty
     idx = 0;
     line = 0;
@@ -88,7 +96,7 @@ int explode( char * elements, char * str, char delimiter, int lines, int length 
 
     while( idx < len )
         {
-        while( ( str[idx] != delimiter ) && ( idx < len ) )
+        while( ( str[idx] != delimiter ) && ( idx < len ) && ( dst_idx < length ) )
             {
             *(elements + (line * length + dst_idx)) = str[idx];
             ++dst_idx;
@@ -109,13 +117,16 @@ int explode( char * elements, char * str, char delimiter, int lines, int length 
                     time format.
 
     param[out]      char * dst, german formatted time and date
-                    DD.MM.YYYY hh:mm
-                    Has to be at least 17 byte long!
+                    DD.MM.YYYY hh:mm:ss
+                    Has to be at least 20 byte long!
                     NO lenmgth check done here!!
     param[in]       char * src, the timestamp read from a record
 */
 void time2ger( char * dst, char * src )
     {
+    assert(dst);
+    assert(src);
+
     memcpy(dst, src + 6, 2);                                                    // day
     *(dst + 2) = '.';
     memcpy(dst + 3, src + 4, 2);                                                // month
@@ -125,7 +136,15 @@ void time2ger( char * dst, char * src )
     memcpy(dst + 11, src + 8, 2);                                               // hour
     *(dst + 13) = ':';
     memcpy(dst + 14, src + 10, 2);                                              // minute
-    *(dst + 16) = 0;
+    *(dst + 16) = ':';
+    if( *(src + 12) )
+        memcpy(dst + 17, src + 12, 2);                                          // second
+    else
+        {
+        *(dst + 17) = '0';
+        *(dst + 18) = '0';
+        }
+    *(dst + 19) = 0;
     }
 
 
@@ -199,6 +218,7 @@ void showhelp( char * name )
 void Showbuffer( const char * buffer, int size )
     {
     size_t i;
+    assert(buffer);
 
     if( !is_debug() )
         return;

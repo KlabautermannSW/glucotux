@@ -23,7 +23,7 @@
 
     file        getargs.c
 
-    date        09.03.2019
+    date        30.03.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -65,10 +65,11 @@
 void getargs( int argc, char *argv[] )
     {
     int i = 0;
+    int j;
     int option = 0;
 
     debug("Options:\n");
-    while( ( option = getopt(argc, argv, "vdcri:o:h") ) != -1 )
+    while( ( option = getopt(argc, argv, "dvcri:o:h") ) != -1 )
         {
         switch( option )
             {
@@ -106,7 +107,7 @@ void getargs( int argc, char *argv[] )
             }
         }
 
-    for( int j=0; j<i; ++j )
+    for( j = 0; j < i; ++j )
         debug(" -i %s\n", get_infile_name(j));
     if( is_reformat() )
         debug(" -r\n");

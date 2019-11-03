@@ -23,7 +23,7 @@
 
     file        files.c
 
-    date        14.04.2019
+    date        22.04.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -114,7 +114,7 @@ static void shrink( char * line, char c )
                 no_char = 0;
                 }
             }
-        else if( *p_line == c )
+        else
             {
             if( !no_char )
                 {
@@ -485,8 +485,8 @@ int reformat( const char *infile_name, const char *newfile_name )
     int idx_new;
     int oldfile_records;
     int newfile_records;
-    dataset * olddata;
-    dataset * newdata;
+    dataset * olddata = 0;
+    dataset * newdata = 0;
 
     printf("Reformatting %s and %s to %s\n", infile_name, newfile_name, tmpfile_name);
 
@@ -546,12 +546,9 @@ int reformat( const char *infile_name, const char *newfile_name )
             }
         }
 
-    fclose(tmpfile);
-    fclose(oldfile);
-    fclose(newfile);
 
     free(olddata);
     free(newdata);
-    free(tmpfile);
+    fclose(tmpfile);
     return result;
     }

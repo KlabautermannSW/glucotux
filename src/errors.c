@@ -23,14 +23,13 @@
 
     ERRORS      errors.c
 
-    date        14.04.2019
+    date        05.05.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
-    brief       Show error message to stderr.
+    brief       Defines application specific erros.
 
-    details     Numbering starts at -256 to prevent mangling with
-                Linux's internal errors.
+    details     All application specific error codes are negative integers.
 
     project     glucotux
     target      Linux
@@ -52,20 +51,24 @@
 static char * errors[] =
     {
     "Buffer too small",
-    "Can not open device",
+    "No contour device found",
     "Vendor code and product code do not match",
+    "Error when reading from contour device",
+    "Error when writing to contour device",
     "File name too long",
     "Can not open output file",
     "Can not open input file",
+    "No STX found in frame",
+    "No frame ternimation byte found",
     "Illegal frame number",
     "Message terminator missing",
+    "Message checksum error",
     "No output file name given",
     "Unknown data file line format",
     "Data line does not contain the expected number of elements",
     "Not enough memory to store data",
     "Error when writing to a file",
-    "Number of input files out of range [0 .. 2]",
-    0
+    "Number of input files out of range [0 .. 2]"
     };
 
 
@@ -77,28 +80,19 @@ static char * errors[] =
 */
 void showerr( int error )
     {
-    int count;
-    int idx;
-
     if( error == NOERR )
         return;
 
-    idx = -1 * error;
-    if( idx < -ERR_BUFFER_LEN )
+    if( error > 0 )
         {
-        fprintf(stderr, "\nError %3d : %s\n", idx, strerror(idx));
+        fprintf(stderr, "\nError %3d : %s\n", error, strerror(error));
         }
     else
         {
-        for( count = 0; errors[count]; ++count )
-            {
-            if(count == idx + ERR_BUFFER_LEN )
-                break;
-            }
-
-            if( errors[count] )
-                fprintf(stderr, "\nError %3d : %s\n", error, errors[count]);
-            else
-                fprintf(stderr, "\nError %3d : unknown error code !\n", error);
+        int idx = -1 * error;
+        if( idx > sizeof(errors)/sizeof(errors[0]) )
+            fprintf(stderr, "\nError %3d : unknown error code !\n", error);
+        else
+            fprintf(stderr, "\nError %3d : %s\n", error, errors[--idx]);
         }
     }

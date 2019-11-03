@@ -23,7 +23,7 @@
 
     file        glucotux-cli.c
 
-    date        14.04.2019
+    date        05.05.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -75,6 +75,7 @@ int main( int argc, char *argv[] )
     char c;
 
     printf(title, name, version_cli, commitdate);
+    void init_globals();
     getargs(argc, argv);
 
     if( strlen(get_infile_name(0)) != 0 )
@@ -88,7 +89,7 @@ int main( int argc, char *argv[] )
         return 0;
         }
 
-    handle = wait_for_contour(&contour_type);
+    result = wait_for_contour(&contour_type, &handle);
     if( handle < 0 )
         exit(handle);
 
@@ -107,7 +108,7 @@ int main( int argc, char *argv[] )
             goto finish;
         }
 
-    result = data_transfer_mode(handle);
+    result = data_transfer_mode(handle, contour_type);
     if( result )
         showerr(result);
 

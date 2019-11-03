@@ -23,7 +23,7 @@
 
     file        globals.c
 
-    date        09.03.2019
+    date        05.05.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -54,9 +54,21 @@ static int verbose_flag = FALSE;
 static int debug_flag = FALSE;
 static int cvs_out_flag = FALSE;
 static int reformat_flag = FALSE;
-static char outfile_name[FILENAME_LEN] = {0, };
-static char infile_name[2][FILENAME_LEN] = {0, };
+static char outfile_name[FILENAME_LEN];
+static char infile_name[2][FILENAME_LEN];
 static int infile_number = 0;
+
+
+/*  function        void init_globals( void )
+
+    brief           Initialize global variables if neccessary
+*/
+void init_globals( void )
+    {
+    memset(outfile_name, 0, FILENAME_LEN);
+    memset(infile_name[0], 0, FILENAME_LEN);
+    memset(infile_name[1], 0, FILENAME_LEN);
+    }
 
 
 /*  function        void set_verbose( int flag )

@@ -23,7 +23,7 @@
 
     file        globals.h
 
-    date        08.03.2019
+    date        05.05.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -62,6 +62,7 @@
 #define ETB                                 0x17
 
 
+extern void init_globals( void );
 extern int is_verbose( void );
 extern void set_verbose( int flag );
 extern void set_debug( int flag );
