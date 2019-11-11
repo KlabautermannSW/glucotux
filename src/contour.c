@@ -23,7 +23,7 @@
 
     file        contour.c
 
-    date        05.05.2019
+    date        11.11.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -72,7 +72,7 @@ static const short int device_codes[] =
     };
 
 
-static int usage_code = 0;
+static unsigned int usage_code = 0;
 
 
 /*  function        static int _open_contour( int * contour_type, int * handle )
@@ -83,7 +83,7 @@ static int usage_code = 0;
     param[out]      int * contour_type, type of contour device found
     param{out]      int * handle, handle to the conour device if one was found
 
-    return          int, if not 0, error code
+    return          int, error code
 */
 static int _open_contour( int * contour_type, int * handle )
     {
@@ -157,22 +157,22 @@ static int _open_contour( int * contour_type, int * handle )
             {
             int i;
 
-            for( i = 0; i < (sizeof(device_codes) / sizeof(short int)); ++i )
+            for( i = 0; i < (sizeof(device_codes) / sizeof(device_codes[0])); ++i )
                 {
                 if( device_info.product == device_codes[i] )
                     {
                     *contour_type = device_info.product;
-                    return 0;
+                    return NOERR;
                     }
                 }
             }
         debug("Vendor and product doesn't match\n");
 LoopEnd:
         close(*handle);
-        break;
+        return ERR_VENDOR_AND_PRODUCT_CODES_DO_NOT_MATCH;
         }
 
-    return 0;
+    return NOERR;
     }
 
 
@@ -204,7 +204,7 @@ void close_contour( int handle )
     param[out]      int * contour_type, type of contour device found
     param{out]      int * handle, handle to the conour device if one was found
 
-    return          int, if not 0, error code
+    return          int, error code
 */
 int wait_for_contour( int * contour_type, int * handle )
     {
@@ -244,21 +244,21 @@ int wait_for_contour( int * contour_type, int * handle )
     }
 
 
-/*  function        int read_contour( int handle, char * buffer, size_t size )
+/*  function        int read_contour( int handle, char * buffer, size_t size, size_t * len )
 
     brief           Reads from contour device
 
     param[in]       int handle, handle to the contour device
     param[out]      char * buffer, buffer to fill in the bytes read
     param[in]       size_t size, size of buffer
+    param[out]      size_t * len, number of bytes read
 
-    return          int, if negative, error
-                         if positive, number of bytes read
+    return          int, error code
 */
-int read_contour( int handle, char * buffer, size_t size )
+int read_contour( int handle, char * buffer, size_t size, size_t * len )
     {
     struct hiddev_event inbuffer[TRANSFER_BUFFER_LEN];
-    int result;
+    ssize_t result;
     size_t i;
     assert(handle >= 0);
     assert(buffer);
@@ -274,11 +274,14 @@ int read_contour( int handle, char * buffer, size_t size )
         showerr(errno);
         return ERR_READING_FROM_DEVICE;
         }
-    result /= sizeof(struct hiddev_event);
-    for( i = 0; i < result; ++i )
-        buffer[i] = inbuffer[i].value;
+    *len = (size_t)result;
+    *len /= sizeof(struct hiddev_event);
+    for( i = 0; i < *len; ++i )
+        buffer[i] = (char)(inbuffer[i].value & 0xff);
 
-    return result;
+    *len = (size_t)labs(result);
+
+    return NOERR;
     }
 
 
@@ -290,14 +293,14 @@ int read_contour( int handle, char * buffer, size_t size )
     param[in]       const char *buffer, bytes to write
     param[in]       size_t size, number of bytes to write
 
-    return          int, 0 or negative on error
+    return          int, error code
 */
 int write_contour( int handle, const char *buffer, size_t size )
     {
     struct hiddev_usage_ref ref;
     struct hiddev_report_info info;
     int result = 0;
-    size_t idx;
+    unsigned int idx;
     assert(handle >= 0);
     assert(buffer);
     assert(size);
@@ -327,7 +330,7 @@ int write_contour( int handle, const char *buffer, size_t size )
     if( result < 0 )
         goto err;
 
-    return 0;
+    return NOERR;
 err:
     showerr(errno);
 

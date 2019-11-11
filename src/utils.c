@@ -23,7 +23,7 @@
 
     file        utils.c
 
-    date        04.05.2019
+    date        10.11.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -50,7 +50,7 @@
 
 
 /*  function    int explode( char * elements, char * str, char delimiter,
-                             int lines, int length )
+                             size_t lines, size_t length )
 
     brief       Divides <str> into elements separted by <delimiter>.
                 <elements> is used as char elements[lines][length].
@@ -68,18 +68,18 @@
                 length of <length>
     param[in]   char * str, the string to explode (must be terminated with a '0')
     param[in]   char delimiter, separates the string's elements
-    param[in]   int lines, number of separate strings that fits into elements
-    param[in]   int length, maximum length of a sperate string - including
+    param[in]   size_t lines, number of separate strings that fits into elements
+    param[in]   size_t length, maximum length of a sperate string - including
                 the terminating '0'
 
-    return      int, number of separated strings found
+    return      size_t, number of separated strings found
 */
-int explode( char * elements, char * str, char delimiter, int lines, int length )
+unsigned int explode( char * elements, char * str, char delimiter, size_t lines, size_t length )
     {
     int idx;                                                                    // data index
-    int dst_idx;                                                                // element's string index
-    int line;
-    int len;
+    unsigned int dst_idx;                                                                // element's string index
+    unsigned int line;
+    size_t len;
 
     assert(elements);
     assert(str);
@@ -119,7 +119,7 @@ int explode( char * elements, char * str, char delimiter, int lines, int length 
     param[out]      char * dst, german formatted time and date
                     DD.MM.YYYY hh:mm:ss
                     Has to be at least 20 byte long!
-                    NO lenmgth check done here!!
+                    NO length check is done here!!
     param[in]       char * src, the timestamp read from a record
 */
 void time2ger( char * dst, char * src )
@@ -205,7 +205,7 @@ void showhelp( char * name )
 
 
 #ifdef _DEBUG_
-/*  function        void Showbuffer( const char * buffer, int size )
+/*  function        void Showbuffer( const char * buffer, size_t size )
 
     brief           Displays a frame with decoded special characters, unknown
                     characters as their ascii number in hex and all others as
@@ -215,7 +215,7 @@ void showhelp( char * name )
     param[in]       const char *buffer, message buffer
     param[in]       size_t size, number of bytes in message
 */
-void Showbuffer( const char * buffer, int size )
+void Showbuffer( const char * buffer, size_t size )
     {
     size_t i;
     assert(buffer);
@@ -223,7 +223,7 @@ void Showbuffer( const char * buffer, int size )
     if( !is_debug() )
         return;
 
-    printf("Size : %d\n", size);
+    printf("Size : %lu\n", size);
     for( i = 0; i < size; ++i, ++buffer )
         {
         if( (*buffer >= ' ') && (*buffer <= 0x7e) )

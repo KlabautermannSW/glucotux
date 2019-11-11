@@ -23,7 +23,7 @@
 
     ERRORS      errors.c
 
-    date        05.05.2019
+    date        10.11.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -68,7 +68,8 @@ static char * errors[] =
     "Data line does not contain the expected number of elements",
     "Not enough memory to store data",
     "Error when writing to a file",
-    "Number of input files out of range [0 .. 2]"
+    "Number of input files out of range [0 .. 2]",
+    "Unit string read from meter device is longer than expected"
     };
 
 

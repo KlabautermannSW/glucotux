@@ -23,7 +23,7 @@
 
     file        astm.c
 
-    date        03.05.2019
+    date        10.11.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -74,7 +74,7 @@ static char delimiters[4] = { '|', 0, 0, 0 };
     param[in]       const char *buffer, buffer to write the contour device
     param[in]       size_t size, number of bytes to send
 
-    return          int, 0
+    return          int, error code
 */
 int _send_astm( int handle, const char *buffer, size_t size )
     {
@@ -100,40 +100,40 @@ int _send_astm( int handle, const char *buffer, size_t size )
     }
 
 
-/*  function        static int _read( int handle, char * buffer )
+/*  function        static int _read( int handle, char * buffer, size_t * len )
 
     brief           Reads TRANSFER_BUFFER_LEN bytes from the contour device
 
     param[in]       int handle, handle to the contour device
     param[out]      char * buffer, buffer to fill in the bytes read
+    param[out]      size_t * len, number of bytes read
 
-    return          int, if negative, error
-                         if positive, number of bytes read
+    return          int, error code
 */
-static int _read( int handle, char * buffer )
+static int _read( int handle, char * buffer, size_t * len )
     {
-    int i;
+    size_t i;
     char * p;
     int result;
     assert(buffer);
 
     memset(buffer, 0, TRANSFER_BUFFER_LEN);
-    result = read_contour(handle, buffer, TRANSFER_BUFFER_LEN);
-    if( result < 0 )
+    result = read_contour(handle, buffer, TRANSFER_BUFFER_LEN, len);
+    if( result )
         return result;
     for( i = 4, p = buffer + 4; i < TRANSFER_BUFFER_LEN; ++i )
         {
         if( *p++ == 0 )
             break;
         }
-    result = i;
-    showbuffer(buffer, result);
+    *len = i;
+    showbuffer(buffer, *len);
 
     return result;
     }
 
 
-/*  function        static int _read_astm_part( int handle, char * buffer )
+/*  function        static int _read_astm_part( int handle, char * buffer, size_t * len )
 
     brief           Read TRANSFER_BUFFER_LEN bytes from the contour device.
                     Every 16th call there has to be a wait time of 20ms to not
@@ -141,11 +141,11 @@ static int _read( int handle, char * buffer )
 
     param[in]       int handle, handle to the contour device
     param[out]      char * buffer, buffer to fill in the bytes read
+    param[out]      size_t * len, number of bytes read
 
     return          int, if negative, error
-                         if positive, number of bytes read
 */
-static int _read_astm_part( int handle, char * buffer )
+static int _read_astm_part( int handle, char * buffer, size_t * len )
     {
     static int num_of_calls_left = 16;
     char c;
@@ -162,7 +162,7 @@ static int _read_astm_part( int handle, char * buffer )
     if( (result = _send_astm(handle, &c, 1)) )
         return result;
 
-    result = _read(handle, buffer);
+    result = _read(handle, buffer, len);
 
     return result;
     }
@@ -176,8 +176,7 @@ static int _read_astm_part( int handle, char * buffer )
     param[in]       const char * buffer, the frame
     param[in]       size_t length, number of bytes in buffer
 
-    return          int, 0 : checksum ok
-                         negative, error code
+    return          int, error code
 */
 static int _verify_checksum( const char * buffer, size_t length )
     {
@@ -208,7 +207,7 @@ static int _verify_checksum( const char * buffer, size_t length )
     }
 
 
-/*  function        int _read_astm_frame( int handle, char * buffer, int size )
+/*  function        int _read_astm_frame( int handle, char * buffer, size_t size, size_t * len )
 
     brief           Reads an ASTM frame from the contour device.
                     A frame ends with a CR LF combination and has a correct
@@ -217,57 +216,57 @@ static int _verify_checksum( const char * buffer, size_t length )
     param[in]       int handle, handle to the contour device
     param[out]      char * buffer, buffer to fill in the bytes read
     param[in]       int size, buffer length
+    param[out]      size_t * len, number of bytes read
 
-    return          int, if negative, error
-                         if positive, number of bytes read
+    return          int, error code
 */
-int _read_astm_frame( int handle, char * buffer, int size )
+int _read_astm_frame( int handle, char * buffer, size_t size, size_t * len )
     {
     char in_buffer[TRANSFER_BUFFER_LEN];
     int result;
-    int length = 0;
+    size_t l;
 
+    *len = 0;
     memset(buffer, 0, size);
 
     do
         {
-        result = _read_astm_part(handle, in_buffer);
-        if( (length + result) > size )
+        result = _read_astm_part(handle, in_buffer, &l);
+        if( result )
+            return result;
+        if( (*len + l) > size )
             {
             *in_buffer = NAK;
-            _send_astm(handle, in_buffer, 1);
+            result = _send_astm(handle, in_buffer, 1);
+            if( result )
+                return result;
             return ERR_BUFFER_LEN;
             }
-        if( result < 4 )
+        if( l < 4 )
             {
             *in_buffer = NAK;
-            _send_astm(handle, in_buffer, 1);
+            result = _send_astm(handle, in_buffer, 1);
+            if( result )
+                return result;
             return ERR_UNKNOWN_LINE_FORMAT;
             }
-        result -= 4;
-        memcpy(buffer+length, in_buffer+4, result);
-        length += result;
+        l -= 4;
+        memcpy(buffer + *len, in_buffer + 4, l);
+        *len += l;
         }
-    while( buffer[length-1] != LF );
+    while( buffer[*len-1] != LF );
 
-    result = _verify_checksum(buffer, length-1);
-    if( result < 0 )
+    result = _verify_checksum(buffer, *len - 1);
+    if( result )
         return result;
-    if( result == 1 )
-        length = 0;
 
-    return length;
+    return NOERR;
     }
-
-
-//  **************************************
-//  AB HIER NOCH VIELE FEHLER MOEGLICH !!!
-//  **************************************
 
 
 /*  function        char read_astm( int handle )
 
-    brief           Reads at last 36 bytes from the contour device
+    brief           Reads at least 36 bytes from the contour device
 
     param[in]       int handle, handle to the contour device
 
@@ -276,27 +275,28 @@ int _read_astm_frame( int handle, char * buffer, int size )
 char read_astm( int handle )
     {
     int result;
+    size_t len;
     char buffer[TRANSFER_BUFFER_LEN];
 
     memset(buffer, 0, sizeof(buffer));
     while( 1 )
         {
-        result = _read(handle, buffer);
-        if( result < 0 )
+        result = _read(handle, buffer, &len);
+        if( result )
             {
             showerr(result);
             break;
             }
-        debug("Number of bytes read : %d, last byte 0x%02x\n", result, buffer[result-1]);
-        if( result <= 36 )
-            return buffer[result-1];
+        debug("Number of bytes read : %d, last byte 0x%02x\n", len, buffer[len - 1]);
+        if( len <= 36 )
+            return buffer[len - 1];
         }
 
-    return 0;
+    return '\0';
     }
 
 
-/*  function        static int _interpret_astm_frame( FILE * file, int handle, char * buffer, int length, int contour_type )
+/*  function        static int _interpret_astm_frame( FILE * file, int handle, char * buffer, size_t length, int contour_type )
 
     brief           Interprets a frame read from a countour device. The frame
                     given in buffer was verified for a correct transfer.
@@ -305,31 +305,38 @@ char read_astm( int handle )
     param[in]       FILE * file, file to log data into
     param[in]       int handle, handle to the contour device
     param[in]       char * buffer, buffer to interpret as an ASTM E-1394 record
-    param[in]       int length, the buffer's number of bytes
+    param[in]       size_t length, the buffer's number of bytes
     param[in]       int contour_type, type of the currntly connected contour device
 
     return          int, error code
 */
-static int _interpret_astm_frame( FILE * file, int handle, char * buffer, int length, int contour_type )
+static int _interpret_astm_frame( FILE * file, int handle, char * buffer, size_t length, int contour_type )
     {
+    int result;
     char elements[NUM_OF_FIELDS * LEN_OF_FIELDS];
     char components[NUM_OF_COMPONENTS * LEN_OF_COMPONENTS];
     dataset data;
     static int frame_number = 1;
     char * p;
-    int i;
+    size_t i;
     int j;
-    char result[16];
+    char temp_buffer[16];
 
     for( i=0, p = buffer; ( (*p != STX ) && ( i < length ) ); ++p, ++i )
         ;
     ++p;
 
     if( frame_number++ != (*p++ & 0x0f) )
-        return ERR_FRAME_NUMBER;                                                // todo: send NAK to get a repeated frame
+        {                                                                       // send NAK to get a repeated frame
+        *temp_buffer = NAK;
+        result = _send_astm(handle, temp_buffer, 1);
+        if( result )
+            return result;
+        return ERR_FRAME_NUMBER;
+        }
     frame_number &= 7;
 
-    memset(&data, 0, sizeof(data));
+    memset(&data, 0, sizeof(data));                                             // now every string ends with '\0'
     explode(elements, buffer, delimiters[0], NUM_OF_FIELDS, LEN_OF_FIELDS);
     data.record_type = *p++;                                                    // this is the record type
     switch( data.record_type )
@@ -347,16 +354,15 @@ static int _interpret_astm_frame( FILE * file, int handle, char * buffer, int le
                 }
             time2ger(components, elements + (13 * LEN_OF_FIELDS));
             if( is_verbose() )
-                printf("%s\n", components);                                     // meter product code
+                printf("%s\n", components);                                     // time stamp
             break;
         case 'R':                                                               // Result Record
             data.record_number = atoi(elements + LEN_OF_FIELDS);
             strncpy(data.UTID, elements + (2 * LEN_OF_FIELDS + 3), sizeof(data.UTID) - 1);    // remove leading ^^^
             data.result = atoi(elements + 3 * LEN_OF_FIELDS);
             explode(components, elements + (4 * LEN_OF_FIELDS), delimiters[2], NUM_OF_COMPONENTS, LEN_OF_COMPONENTS);
-            strncpy(data.unit, components, sizeof(data.unit) - 1);
+            memcpy(data.unit, components, sizeof(data.unit) - 1);
 
-// Hier klemmts noch
             if( strlen(elements + (6 * LEN_OF_FIELDS)) )
                 {
                 i = explode(components, elements + (6 * LEN_OF_FIELDS), '/', NUM_OF_COMPONENTS, LEN_OF_COMPONENTS);
@@ -367,13 +373,13 @@ static int _interpret_astm_frame( FILE * file, int handle, char * buffer, int le
                     switch( *(components + (j * LEN_OF_COMPONENTS)) )
                         {
                         case 'M':
-                            *(data.flags + j) = 'N';                                        //   "out of regular intervals"
+                            *(data.flags + j) = 'N';                            //   "out of regular intervals"
                             break;
                         case 0x00:
-                            *(data.flags + j) = 'O';                                        //   "out of regular intervals"
+                            *(data.flags + j) = 'O';                            //   "out of regular intervals"
                             break;
                         default:
-                            *(data.flags + j) = *components;                                // 'B' : before meal, 'A' : after meal, 'F' : fasting
+                            *(data.flags + j) = *components;                    // 'B' : before meal, 'A' : after meal, 'F' : fasting
                             break;
                         }
                     }
@@ -384,15 +390,17 @@ static int _interpret_astm_frame( FILE * file, int handle, char * buffer, int le
             else
                 strncpy(data.timestamp, elements + (8 * LEN_OF_FIELDS), 12);
             if( memcmp(data.UTID, "Insu", 4) == 0 )
-                sprintf(result, "%5.1f", (double)data.result / 10.0);
+                sprintf(temp_buffer, "%5.1f", (double)data.result / 10.0);
             else
-                sprintf(result, "%5d", data.result);
+                sprintf(temp_buffer, "%5d", data.result);
             if( file )
-                fprintf(file, "%s %s %-5s  %s  %-8s  %c  %4d\n", data.timestamp, result, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
+                fprintf(file, "%s %s %-5s  %-9s  %-8s  %c  %4d\n",
+                    data.timestamp, temp_buffer, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
             if( is_verbose() )
-                printf(" %s %s %-5s  %s  %-8s  %c  %4d\n", data.timestamp, result, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
+                printf(" %s %s %-5s  %-9s  %-8s  %c  %4d\n",
+                    data.timestamp, temp_buffer, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
             else
-                printf("%c%4d", CR, data.record_number);                            // show progress
+                printf("%c%4d", CR, data.record_number);                        // show progress
             fflush(stdout);
             break;
         case 'L':                                                               // Message Terminator Record
@@ -406,7 +414,7 @@ static int _interpret_astm_frame( FILE * file, int handle, char * buffer, int le
             debug("Unknown frame type\n");
         }
 
-    return 0;
+    return NOERR;
     }
 
 
@@ -424,7 +432,7 @@ int data_transfer_mode( int handle, int contour_type )
     {
     const char * filename;
     FILE * file = 0;
-    int length;
+    size_t length;
     char buffer[FRAME_LEN];
     int result = NOERR;
 
@@ -442,16 +450,13 @@ int data_transfer_mode( int handle, int contour_type )
 
     do
         {
-        length = _read_astm_frame(handle, buffer, FRAME_LEN);
-        if( length <= 0 )                                                       // error !
-            {
-            showerr(length);
-            return length;
-            }
+        result = _read_astm_frame(handle, buffer, FRAME_LEN, &length);
+        if( result )
+            return result;
         showbuffer(buffer, length);
         buffer[length] = 0;
         result = _interpret_astm_frame(file, handle, buffer, length, contour_type);
-        if( result != 0 )
+        if( result )
             return result;
         }
     while( buffer[length - 5] != ETX );
@@ -459,7 +464,9 @@ int data_transfer_mode( int handle, int contour_type )
     printf("\n");
 
     *buffer = NAK;
-    _send_astm(handle, buffer, 1);
+    result = _send_astm(handle, buffer, 1);
+    if( result )
+        return result;
 
     if( file != 0 )
         fclose(file);

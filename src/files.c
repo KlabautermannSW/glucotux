@@ -23,7 +23,7 @@
 
     file        files.c
 
-    date        22.04.2019
+    date        11.11.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -46,6 +46,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "errors.h"
 #include "debug.h"
 #include "astm.h"
@@ -58,20 +59,20 @@
 #define ELEMENT_LEN                         14                                  // element's maximum string length
 
 
-/*  function        static int get_num_of_records( FILE * f )
+/*  function        static int _get_num_of_records( FILE * f )
 
     brief           Calculates the number of data records (lines) in the data
                     file.
 
     param[in]       FILE * f, data file's handle
 
-    return          int, number of data records
+    return          long, number of data records
 */
-static int get_num_of_records( FILE * f )
+static long _get_num_of_records( FILE * f )
     {
     int i;
     long l;
-    char c;
+    int c;
 
     for( i = 0, c = 0xff; c != 0x0a; ++i )
         c = fgetc(f);
@@ -87,15 +88,15 @@ static int get_num_of_records( FILE * f )
     }
 
 
-/*  function        static void shrink( char * line, char c )
+/*  function        static void _shrink( char * line, char c )
 
-    brief           Shrinks multiple occurrences of "c" to one and removes the
+    brief           shrinks multiple occurrences of "c" to one and removes the
                     trailing newlines
 
     param[in/out]   char * line, the line to shrink
     param[in]       char c, the character to shrink from multiple to one
 */
-static void shrink( char * line, char c )
+static void _shrink( char * line, char c )
     {
     int no_char = 0;
     char * p_line = line;
@@ -129,7 +130,7 @@ static void shrink( char * line, char c )
     }
 
 
-/*  function        static int read_line( dataset * data, char * line, int line_format )
+/*  function        static int _read_line( dataset * data, char * line, int line_format )
 
     brief           Reads a line of CSV formatted data and stores the data to an
                     instance of type dataset.
@@ -141,16 +142,16 @@ static void shrink( char * line, char c )
 
     return          int, error code
 */
-static int read_line( dataset * data, char * line, int line_format )
+static int _read_line( dataset * data, char * line, int line_format )
     {
     int error = NOERR;
     char elements[ELEMENT_LEN * NUM_OF_ELEMENTS] = {0, };
-    int num_of_elements;
+    unsigned int num_of_elements;
     char const str_mg[] = "mg";
     char const str_mml[] = "mm";
     char * unit;
 
-    shrink(line, ' ');
+    _shrink(line, ' ');
     debug("Shrunk \"%s\"\n", line);
     memset(data, 0, sizeof(dataset));
     switch( line_format )
@@ -179,13 +180,13 @@ static int read_line( dataset * data, char * line, int line_format )
             debug("Number of elements in new record : %d\n", num_of_elements);
             if( num_of_elements == 7 )
                 {
-                strncpy(data->timestamp, elements, sizeof(data->timestamp));
+                memcpy(data->timestamp, elements, sizeof(data->timestamp) - 1);
                 sscanf(elements + ELEMENT_LEN, "%d", &(data->result));
                 strncpy(data->unit, elements + 2 * ELEMENT_LEN, sizeof(data->unit));
-                strncpy(data->flags, elements + 3 * ELEMENT_LEN, 1);
+                strncpy(data->flags, elements + 3 * ELEMENT_LEN, sizeof(data->flags));
                 strncpy(data->UTID, elements + 4 * ELEMENT_LEN, sizeof(data->UTID));
                 data->record_type = elements[5 * ELEMENT_LEN];
-                sscanf( elements + 6 * ELEMENT_LEN, "%d", &(data->record_number));
+                sscanf(elements + 6 * ELEMENT_LEN, "%d", &(data->record_number));
                 }
             else
                 error = ERR_NUM_OF_DATA_IN_LINE;
@@ -199,7 +200,7 @@ static int read_line( dataset * data, char * line, int line_format )
     }
 
 
-/*  function        static void compare_timestamp( void const * data1, void const * data2 )
+/*  function        static void _compare_timestamp( void const * data1, void const * data2 )
 
     brief           Compares to timestamps.
                     Returns an integer less than, equal to, or greater than zero
@@ -211,29 +212,31 @@ static int read_line( dataset * data, char * line, int line_format )
 
     return          int, result of comparison (s.o.)
 */
-static int compare_timestamp( void const * data1, void const * data2 )
+static int _compare_timestamp( void const * data1, void const * data2 )
     {
     char * timestamp1 = ((dataset *)data1)->timestamp;
     char * timestamp2 = ((dataset *)data2)->timestamp;
 
-    return strcmp( timestamp1, timestamp2);
+    return strcmp(timestamp1, timestamp2);
     }
 
 
-/*  function        static dataset * getfile( FILE * f, int * records, int line_format )
+/*  function        static int _getfile( FILE * f, dataset * p_data, size_t * records, int line_format )
 
     brief           Get a file, allocate enough memory and read the data
                     into an array of type dataset.
-                    You have to free the memory elsewhere!!
+                    On error p_data and/or the array contents are undefined.
+                    --- You have to free the memory elsewhere ---
 
     param[in]       FILE * f, file handle
-    param[out]      int * records, number of records in the dataset arry
+    param[out]      dataset ** p_data, pointer to dataset array
+    param[out]      size_t * records, number of records in the dataset array
     param[in]       int line_format,  0 : used up to 29.03.2018
                                       1 : used starting on 30.03.2018
 
-    return          pointer to dataset array
+    return          int, error code
 */
-static dataset * getfile( FILE * f, int * records, int line_format )
+static int _getfile( FILE * f, dataset ** p_data, size_t * records, int line_format )
     {
     int error = NOERR;
     int i = 0;
@@ -241,37 +244,41 @@ static dataset * getfile( FILE * f, int * records, int line_format )
     size_t len = 0;
     ssize_t n;
     dataset * data;
+    assert(f);
 
-    *records = get_num_of_records(f);
+    *records = (size_t)_get_num_of_records(f);
     data = (dataset *)malloc(*records * sizeof(dataset));
     if( data == 0 )
-        showerr(ERR_NOT_ENOUGH_MEMORY);
+        return ERR_NOT_ENOUGH_MEMORY;
+    *p_data = data;
 
     while( (n = getline(&line, &len, f)) != -1 )    // getline allocates memory for "line"
         {
-        error = read_line(data + i, line, line_format);
-        showerr(error);                             // exits on error, does nothing on no error
+        error = _read_line(data + i, line, line_format);
+        if( error )
+            goto _getfile_err;
         ++i;
         }
 
-    qsort(data, *records, sizeof(dataset), compare_timestamp);
+    qsort(data, *records, sizeof(dataset), _compare_timestamp);
 
+_getfile_err:
     free(line);
 
-    return data;
+    return error;
     }
 
 
-/*  function        static void printline( FILE * f, dataset * data )
+/*  function        static void _printline( FILE * f, dataset * data )
 
     brief           Prints one record to the file
 
     param[in]       FILE * f, output file's handle
     param[in]       dataset * data, record to print into the file
 */
-static void printline( FILE * f, dataset * data )
+static void _printline( FILE * f, dataset * data )
     {
-    debug("printline : %s  %3d %-5s  %s  %-8s  %c  %4d\n",
+    debug("_printline : %s  %3d %-5s  %s  %-8s  %c  %4d\n",
             data->timestamp,
             data->result,
             data->unit,
@@ -307,34 +314,38 @@ int mixfiles( const char *infile_name, const char *outfile_name )
     int result = NOERR;
     FILE * infile;
     FILE * outfile;
-    int infile_records;
-    int outfile_records;
+    size_t infile_records;
+    size_t outfile_records;
     dataset * indata;
     dataset * outdata;
 
     infile = fopen(infile_name, "r");
     if( infile == 0 )
         {
-        result = -errno;
+        result = errno;
         showerr(result);
         return result;
         }
     outfile = fopen(outfile_name, "r");
     if( outfile == 0 )
         {
-        result = -errno;
+        result = errno;
         showerr(result);
         fclose(infile);
         return result;
         }
 
-    indata = getfile(infile, &infile_records, 1);
-    outdata = getfile(outfile, &outfile_records, 1);
+    result = _getfile(infile, &indata, &infile_records, 1);
+    if( !result )
+        result = _getfile(outfile, &outdata, &outfile_records, 1);
+    if( result )
+        goto mixfiles_err;
 
     /*
         here the real functionaliry has to be implemented!
     */
 
+mixfiles_err:
     fclose(outfile);
     fclose(infile);
     free(indata);
@@ -360,7 +371,7 @@ int csvformat( const char *infile_name, const char *outfile_name )
     int result = NOERR;
     FILE * infile;
     FILE * outfile;
-    int infile_records;
+    size_t infile_records;
     int i;
     char line[256];
     int chars_written;
@@ -371,20 +382,22 @@ int csvformat( const char *infile_name, const char *outfile_name )
     infile = fopen(infile_name, "r");
     if( infile == 0 )
         {
-        result = -errno;
+        result = errno;
         showerr(result);
         return result;
         }
     outfile = fopen(outfile_name, "w");
     if( outfile == 0 )
         {
-        result = -errno;
+        result = errno;
         showerr(result);
         fclose(infile);
         return result;
         }
 
-    indata = getfile(infile, &infile_records, 1);
+    result = _getfile(infile, &indata, &infile_records, 1);
+    if( result )
+        goto csvformat_err;
     p_indata = indata;
 
     for( i = 0; i < infile_records; ++i )
@@ -454,6 +467,7 @@ int csvformat( const char *infile_name, const char *outfile_name )
         p_indata++;
         }
 
+csvformat_err:
     fclose(outfile);
     fclose(infile);
     free(indata);
@@ -483,8 +497,8 @@ int reformat( const char *infile_name, const char *newfile_name )
     FILE * tmpfile;
     int idx_old;
     int idx_new;
-    int oldfile_records;
-    int newfile_records;
+    size_t oldfile_records;
+    size_t newfile_records;
     dataset * olddata = 0;
     dataset * newdata = 0;
 
@@ -494,7 +508,7 @@ int reformat( const char *infile_name, const char *newfile_name )
     oldfile = fopen(infile_name, "r");
     if( oldfile == 0 )
         {
-        result = -errno;
+        result = errno;
         showerr(result);
         return result;
         }
@@ -502,7 +516,7 @@ int reformat( const char *infile_name, const char *newfile_name )
     newfile = fopen(newfile_name, "r");
     if( newfile == 0 )
         {
-        result = -errno;
+        result = errno;
         showerr(result);
         fclose(oldfile);
         return result;
@@ -511,17 +525,20 @@ int reformat( const char *infile_name, const char *newfile_name )
     tmpfile = fopen(tmpfile_name, "w");
     if( tmpfile == 0 )
         {
-        result = -errno;
+        result = errno;
         showerr(result);
         fclose(oldfile);
         fclose(newfile);
         return result;
         }
-    olddata = getfile(oldfile, &oldfile_records, 0);
-    newdata = getfile(newfile, &newfile_records, 1);
+    result = _getfile(oldfile, &olddata, &oldfile_records, 0);
+    if( !result )
+        result = _getfile(newfile, &newdata, &newfile_records, 1);
 
     fclose(newfile);
     fclose(oldfile);
+    if( result )
+        return result;
 
     idx_old = 0;
     idx_new = 0;
@@ -530,22 +547,21 @@ int reformat( const char *infile_name, const char *newfile_name )
         int res = memcmp(olddata + idx_old, newdata + idx_new, sizeof(dataset)-sizeof(int));
         if( res == 0 )
             {
-            printline(tmpfile, olddata + idx_old);
+            _printline(tmpfile, olddata + idx_old);
             ++idx_old;
             ++idx_new;
             }
         else if( res < 0 && ( idx_old < oldfile_records ) )
             {
-            printline(tmpfile, olddata + idx_old);
+            _printline(tmpfile, olddata + idx_old);
             ++idx_old;
             }
         else if( idx_new < newfile_records )
             {
-            printline(tmpfile, newdata + idx_new);
+            _printline(tmpfile, newdata + idx_new);
             ++idx_new;
             }
         }
-
 
     free(olddata);
     free(newdata);

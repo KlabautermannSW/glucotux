@@ -23,7 +23,7 @@
 
     file        glucotux-cli.c
 
-    date        05.05.2019
+    date        10.11.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -86,10 +86,12 @@ int main( int argc, char *argv[] )
             csvformat(get_infile_name(0), get_outfile_name());
         else
             mixfiles(get_infile_name(0), get_outfile_name());
-        return 0;
+        return result;
         }
 
     result = wait_for_contour(&contour_type, &handle);
+    if( result )
+        return result;
     if( handle < 0 )
         exit(handle);
 

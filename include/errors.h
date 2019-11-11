@@ -23,7 +23,7 @@
 
     ERRORS      errors.h
 
-    date        05.05.2019
+    date        10.11.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -70,6 +70,7 @@
 #define ERR_NOT_ENOUGH_MEMORY                       -17
 #define ERR_WRITE_TO_FILE                           -18
 #define ERR_NUM_OF_INFILES                          -19
+#define ERR_UNIT_STRING_TOO_LONG                    -20
 
 
 extern void showerr( int error );

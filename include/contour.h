@@ -23,7 +23,7 @@
 
     file        contour.h
 
-    date        05.053.2019
+    date        09.11.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -55,7 +55,7 @@
 
 extern void close_contour( int handle );
 extern int wait_for_contour( int * contour_type, int * handle );
-extern int read_contour( int handle, char * buffer, size_t size );
+extern int read_contour( int handle, char * buffer, size_t size, size_t * len );
 extern int write_contour( int handle, const char *buffer, size_t size );
 
 

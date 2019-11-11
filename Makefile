@@ -23,7 +23,7 @@
 #
 #   file        Makefile
 #
-#   date        28.07.2019
+#   date        10.11.2019
 #
 #   author      Uwe Jantzen (jantzen@klabautermann-software.de)
 #
@@ -53,7 +53,7 @@ vpath %.h include
 vpath %.c src
 vpath %.o obj
 
-CC  := gcc
+CC  := gcc-9
 
 DSRC := src
 DINC := include
@@ -86,8 +86,17 @@ else
 endif
 
 CC_LDFLAGS = -lm
-CFLAGS = -I $(DINC) -funsigned-char -Wall $(OPTIMIZE) -DVERSION=\"$(VERSION)\" \
- -DVERSION_CLI=\"$(VERSION_CLI)\" -DCOMMITDATE=\"$(COMMITDATE)\" $(DDEBUG) $(DASSERT)
+CFLAGS = -I $(DINC) \
+ -funsigned-char -Wall -Wswitch-default -Wtype-limits -Wconversion -Wlogical-op \
+ -Wmissing-field-initializers -Wunused-result \
+ $(OPTIMIZE) -DVERSION=\"$(VERSION)\" \
+ -DVERSION_CLI=\"$(VERSION_CLI)\" -DCOMMITDATE=\"$(COMMITDATE)\" $(DDEBUG) \
+ $(DASSERT)
+
+ifneq ($(nowarn), 1)
+ CFLAGS += -Werror
+endif
+
 CFLAGS_GTK = `pkg-config --cflags gtk+-3.0` $(CFLAGS)
 
 ####### Build rules

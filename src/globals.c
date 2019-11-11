@@ -23,7 +23,7 @@
 
     file        globals.c
 
-    date        05.05.2019
+    date        11.11.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -42,6 +42,7 @@
 */
 
 
+#include <stdlib.h>
 #include <string.h>
 #include "errors.h"
 #include "globals.h"
@@ -66,8 +67,7 @@ static int infile_number = 0;
 void init_globals( void )
     {
     memset(outfile_name, 0, FILENAME_LEN);
-    memset(infile_name[0], 0, FILENAME_LEN);
-    memset(infile_name[1], 0, FILENAME_LEN);
+    memset(infile_name, 0, 2 * FILENAME_LEN);
     }
 
 
@@ -169,20 +169,20 @@ int is_reformat( void )
 
 /*  function        int set_outfile_name( char * filename )
 
-    brief           Sets the the log file's name from filename.
+    brief           Sets the the output file's name from filename.
 
-    param[in]       char * filename, log file's name
+    param[in]       char * filename, output file's name
 
     return          int, error code
 */
 int set_outfile_name( char * filename )
     {
-    int len = strlen(filename);
+    size_t len = strlen(filename);
 
     if( len > FILENAME_LEN - 1 )
         return ERR_FILE_NAME_LENGTH;
 
-    memcpy(outfile_name, filename, len+1);
+    memcpy(outfile_name, filename, len + 1);
 
     return NOERR;
     }
@@ -190,7 +190,7 @@ int set_outfile_name( char * filename )
 
 /*  function        char const *  get_outfile_name( void )
 
-    brief           Return the pointer to the log file's name.
+    brief           Return the pointer to the output file's name.
 
     return          char const *, pointer to the output file's name
 */
@@ -211,7 +211,7 @@ char const *  get_outfile_name( void )
 */
 int set_infile_name( char * filename, int i )
     {
-    int len = strlen(filename);
+    size_t len = strlen(filename);
 
     if( i > 1 )
         return ERR_NUM_OF_INFILES;
@@ -219,7 +219,7 @@ int set_infile_name( char * filename, int i )
     if( len > FILENAME_LEN - 1 )
         return ERR_FILE_NAME_LENGTH;
 
-    memcpy(infile_name[i], filename, len+1);
+    memcpy(infile_name[i], filename, len + 1);
 
     return NOERR;
     }
@@ -235,7 +235,10 @@ int set_infile_name( char * filename, int i )
 char const *  get_infile_name( int i )
     {
     if( i > 1 )
+        {
         showerr(ERR_NUM_OF_INFILES);
+        exit(ERR_NUM_OF_INFILES);
+        }
 
     return infile_name[i];
     }
