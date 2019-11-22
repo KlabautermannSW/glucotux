@@ -23,7 +23,7 @@
 
     file        files.c
 
-    date        11.11.2019
+    date        22.11.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -147,8 +147,10 @@ static int _read_line( dataset * data, char * line, int line_format )
     int error = NOERR;
     char elements[ELEMENT_LEN * NUM_OF_ELEMENTS] = {0, };
     unsigned int num_of_elements;
+    char result_buffer[ELEMENT_LEN];
     char const str_mg[] = "mg";
     char const str_mml[] = "mm";
+    int i;
     char * unit;
 
     _shrink(line, ' ');
@@ -176,17 +178,33 @@ static int _read_line( dataset * data, char * line, int line_format )
                 error = ERR_NUM_OF_DATA_IN_LINE;
             break;
         case 1:     // the newer format
+            memset(result_buffer, 0, ELEMENT_LEN);
             num_of_elements = explode(elements, line, ' ', NUM_OF_ELEMENTS, ELEMENT_LEN);
             debug("Number of elements in new record : %d\n", num_of_elements);
-            if( num_of_elements == 7 )
+            if( ( num_of_elements == 6 ) || ( num_of_elements == 7 ) )
                 {
                 memcpy(data->timestamp, elements, sizeof(data->timestamp) - 1);
-                sscanf(elements + ELEMENT_LEN, "%d", &(data->result));
+                sscanf(elements + ELEMENT_LEN, "%s", result_buffer);
                 strncpy(data->unit, elements + 2 * ELEMENT_LEN, sizeof(data->unit));
-                strncpy(data->flags, elements + 3 * ELEMENT_LEN, sizeof(data->flags));
-                strncpy(data->UTID, elements + 4 * ELEMENT_LEN, sizeof(data->UTID));
-                data->record_type = elements[5 * ELEMENT_LEN];
-                sscanf(elements + 6 * ELEMENT_LEN, "%d", &(data->record_number));
+                i = 3;
+                if( num_of_elements == 7 )
+                    {
+                    strncpy(data->flags, elements + i * ELEMENT_LEN, sizeof(data->flags));
+                    ++i;
+                    }
+                strncpy(data->UTID, elements + i * ELEMENT_LEN, sizeof(data->UTID));
+                ++i;
+                data->record_type = elements[i * ELEMENT_LEN];
+                ++i;
+                sscanf(elements + i * ELEMENT_LEN, "%d", &(data->record_number));
+                if( data->UTID[0] == 'I' )
+                    {
+                    float val;
+                    sscanf(result_buffer, "%f", &val);
+                    data->result = (int)(10 * val);
+                    }
+                else
+                    sscanf(result_buffer, "%d", &(data->result));
                 }
             else
                 error = ERR_NUM_OF_DATA_IN_LINE;
@@ -265,6 +283,7 @@ static int _getfile( FILE * f, dataset ** p_data, size_t * records, int line_for
 _getfile_err:
     free(line);
 
+showerr(error);
     return error;
     }
 
@@ -418,7 +437,7 @@ int csvformat( const char *infile_name, const char *outfile_name )
         memcpy(p_line, p_indata->timestamp+10, 2);
         p_line += 2;
         *p_line++ = '|';
-        if( strcmp(p_indata->UTID, "Glucose") == 0 )
+        if( *p_indata->UTID == 'G' )
             {
             chars_written = sprintf(p_line, "%d|", p_indata->result);
             p_line += chars_written;
@@ -427,7 +446,7 @@ int csvformat( const char *infile_name, const char *outfile_name )
         else
             chars_written = sprintf(p_line, "||");
         p_line += chars_written;
-        if( strcmp(p_indata->UTID, "Insulin") == 0 )
+        if( *p_indata->UTID == 'I' )
             {
             chars_written = sprintf(p_line, "%d,%d|", p_indata->result/10, p_indata->result%10);
             p_line += chars_written;
@@ -436,7 +455,7 @@ int csvformat( const char *infile_name, const char *outfile_name )
         else
             chars_written = sprintf(p_line, "||");
         p_line += chars_written;
-        if( strcmp(p_indata->UTID, "Carb") == 0 )
+        if( *p_indata->UTID == 'C' )
             {
             chars_written = sprintf(p_line, "%d|", p_indata->result);
             p_line += chars_written;
@@ -459,7 +478,8 @@ int csvformat( const char *infile_name, const char *outfile_name )
         else
             chars_written = sprintf(p_line, "||");
         p_line += chars_written;
-        *p_line++ = p_indata->flags[0];
+        chars_written = sprintf(p_line, "%s", p_indata->flags);
+        p_line += chars_written;
         *p_line++ = 0x0a;
         *p_line++ = 0;                              // close string
         debug("%s", line);
