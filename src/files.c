@@ -23,7 +23,7 @@
 
     file        files.c
 
-    date        22.11.2019
+    date        23.11.2019
 
     author      Uwe Jantzen (jantzen@klabautermann-software.de)
 
@@ -51,6 +51,7 @@
 #include "debug.h"
 #include "astm.h"
 #include "utils.h"
+#include "globals.h"
 #include "files.h"
 
 
@@ -130,19 +131,17 @@ static void _shrink( char * line, char c )
     }
 
 
-/*  function        static int _read_line( dataset * data, char * line, int line_format )
+/*  function        static int _read_line( dataset * data, char * line )
 
     brief           Reads a line of CSV formatted data and stores the data to an
                     instance of type dataset.
 
     param[out]      dataset * data, store the data read in here
     param[in]       char * line, string containing one line of CVS formatted data
-    param[in]       int line_format,  0 : used up to 29.03.2018
-                                      1 : used starting on 30.03.2018
 
     return          int, error code
 */
-static int _read_line( dataset * data, char * line, int line_format )
+static int _read_line( dataset * data, char * line )
     {
     int error = NOERR;
     char elements[ELEMENT_LEN * NUM_OF_ELEMENTS] = {0, };
@@ -156,62 +155,64 @@ static int _read_line( dataset * data, char * line, int line_format )
     _shrink(line, ' ');
     debug("Shrunk \"%s\"\n", line);
     memset(data, 0, sizeof(dataset));
-    switch( line_format )
+
+    memset(result_buffer, 0, ELEMENT_LEN);
+    num_of_elements = explode(elements, line, ' ', NUM_OF_ELEMENTS, ELEMENT_LEN);
+
+    if( *elements == 'R' )
         {
-        case 0:     // the older format
-            num_of_elements = explode(elements, line, ' ', NUM_OF_ELEMENTS, ELEMENT_LEN);
-            debug("Number of elements in old record : %d\n", num_of_elements);
-            if( num_of_elements == 6 )
+        debug("Number of elements in old record : %d\n", num_of_elements);
+        if( num_of_elements == 6 )
+            {
+            data->record_type = elements[0];
+            sscanf(elements + ELEMENT_LEN, "%d", &(data->record_number));
+            strncpy(data->UTID, elements + 2 * ELEMENT_LEN, sizeof(data->UTID));
+            strncpy(data->timestamp, elements + 3 * ELEMENT_LEN, sizeof(data->timestamp));
+            sscanf(elements + 4 * ELEMENT_LEN, "%d", &(data->result));
+            unit = strstr(elements + 4 * ELEMENT_LEN, str_mg);
+            if( unit == 0 )
+                unit = strstr(elements + 4 * ELEMENT_LEN, str_mml);
+            strncpy(data->unit, unit, sizeof(data->unit));
+            strncpy(data->flags, elements + 5 * ELEMENT_LEN, 1);
+            }
+        else
+            error = ERR_NUM_OF_DATA_IN_LINE;
+        }
+    else
+        {
+        memset(result_buffer, 0, ELEMENT_LEN);
+        num_of_elements = explode(elements, line, ' ', NUM_OF_ELEMENTS, ELEMENT_LEN);
+        debug("Number of elements in new record : %d\n", num_of_elements);
+        if( ( num_of_elements == 6 ) || ( num_of_elements == 7 ) )
+            {
+            memcpy(data->timestamp, elements, sizeof(data->timestamp) - 1);
+            sscanf(elements + ELEMENT_LEN, "%s", result_buffer);
+            strncpy(data->unit, elements + 2 * ELEMENT_LEN, sizeof(data->unit));
+            i = 3;
+            if( num_of_elements == 7 )
                 {
-                data->record_type = elements[0];
-                sscanf(elements + ELEMENT_LEN, "%d", &(data->record_number));
-                strncpy(data->UTID, elements + 2 * ELEMENT_LEN, sizeof(data->UTID));
-                strncpy(data->timestamp, elements + 3 * ELEMENT_LEN, sizeof(data->timestamp));
-                sscanf(elements + 4 * ELEMENT_LEN, "%d", &(data->result));
-                unit = strstr(elements + 4 * ELEMENT_LEN, str_mg);
-                if( unit == 0 )
-                    unit = strstr(elements + 4 * ELEMENT_LEN, str_mml);
-                strncpy(data->unit, unit, sizeof(data->unit));
-                strncpy(data->flags, elements + 5 * ELEMENT_LEN, 1);
+                strncpy(data->flags, elements + i * ELEMENT_LEN, sizeof(data->flags));
+                ++i;
                 }
-            else
-                error = ERR_NUM_OF_DATA_IN_LINE;
-            break;
-        case 1:     // the newer format
-            memset(result_buffer, 0, ELEMENT_LEN);
-            num_of_elements = explode(elements, line, ' ', NUM_OF_ELEMENTS, ELEMENT_LEN);
-            debug("Number of elements in new record : %d\n", num_of_elements);
-            if( ( num_of_elements == 6 ) || ( num_of_elements == 7 ) )
+            strncpy(data->UTID, elements + i * ELEMENT_LEN, sizeof(data->UTID));
+            ++i;
+            data->record_type = elements[i * ELEMENT_LEN];
+            ++i;
+            sscanf(elements + i * ELEMENT_LEN, "%d", &(data->record_number));
+            if( ( data->UTID[0] == 'I' ) || ( data->UTID[0] == 'W' ) )
                 {
-                memcpy(data->timestamp, elements, sizeof(data->timestamp) - 1);
-                sscanf(elements + ELEMENT_LEN, "%s", result_buffer);
-                strncpy(data->unit, elements + 2 * ELEMENT_LEN, sizeof(data->unit));
-                i = 3;
-                if( num_of_elements == 7 )
-                    {
-                    strncpy(data->flags, elements + i * ELEMENT_LEN, sizeof(data->flags));
-                    ++i;
-                    }
-                strncpy(data->UTID, elements + i * ELEMENT_LEN, sizeof(data->UTID));
-                ++i;
-                data->record_type = elements[i * ELEMENT_LEN];
-                ++i;
-                sscanf(elements + i * ELEMENT_LEN, "%d", &(data->record_number));
-                if( data->UTID[0] == 'I' )
-                    {
-                    float val;
-                    sscanf(result_buffer, "%f", &val);
-                    data->result = (int)(10 * val);
-                    }
+                int i1, i2, num;
+                num = sscanf(result_buffer, "%d.%d", &i1, &i2);
+                if( num == 2 )
+                    data->result = i1 * 10 + i2;
                 else
-                    sscanf(result_buffer, "%d", &(data->result));
+                    data->result = i1;
                 }
             else
-                error = ERR_NUM_OF_DATA_IN_LINE;
-            break;
-        default:
-            error = ERR_UNKNOWN_LINE_FORMAT;
-            break;
+                sscanf(result_buffer, "%d", &(data->result));
+            }
+        else
+            error = ERR_NUM_OF_DATA_IN_LINE;
         }
 
     return error;
@@ -239,7 +240,7 @@ static int _compare_timestamp( void const * data1, void const * data2 )
     }
 
 
-/*  function        static int _getfile( FILE * f, dataset * p_data, size_t * records, int line_format )
+/*  function        static int _getfile( FILE * f, dataset * p_data, size_t * records )
 
     brief           Get a file, allocate enough memory and read the data
                     into an array of type dataset.
@@ -249,12 +250,10 @@ static int _compare_timestamp( void const * data1, void const * data2 )
     param[in]       FILE * f, file handle
     param[out]      dataset ** p_data, pointer to dataset array
     param[out]      size_t * records, number of records in the dataset array
-    param[in]       int line_format,  0 : used up to 29.03.2018
-                                      1 : used starting on 30.03.2018
 
     return          int, error code
 */
-static int _getfile( FILE * f, dataset ** p_data, size_t * records, int line_format )
+static int _getfile( FILE * f, dataset ** p_data, size_t * records )
     {
     int error = NOERR;
     int i = 0;
@@ -272,7 +271,7 @@ static int _getfile( FILE * f, dataset ** p_data, size_t * records, int line_for
 
     while( (n = getline(&line, &len, f)) != -1 )    // getline allocates memory for "line"
         {
-        error = _read_line(data + i, line, line_format);
+        error = _read_line(data + i, line);
         if( error )
             goto _getfile_err;
         ++i;
@@ -288,87 +287,93 @@ showerr(error);
     }
 
 
-/*  function        static void _printline( FILE * f, dataset * data )
-
-    brief           Prints one record to the file
-
-    param[in]       FILE * f, output file's handle
-    param[in]       dataset * data, record to print into the file
-*/
-static void _printline( FILE * f, dataset * data )
-    {
-    debug("_printline : %s  %3d %-5s  %s  %-8s  %c  %4d\n",
-            data->timestamp,
-            data->result,
-            data->unit,
-            data->flags,
-            data->UTID,
-            data->record_type,
-            data->record_number);
-    if( fprintf(f, "%s  %3d %-5s  %s  %-8s  %c  %4d\n",
-            data->timestamp,
-            data->result,
-            data->unit,
-            data->flags,
-            data->UTID,
-            data->record_type,
-            data->record_number) < 0 )
-        showerr(ERR_WRITE_TO_FILE);
-    }
-
-
-/*  function        int mixfiles( const char *infile_name, const char *outfile_name )
+/*  function        int mixfiles( const char *infile_name1, const char *infile_name2, const char *outfile_name )
 
     brief           Reads the data from <infile_name> and sorts them into <outfile_name>
                     removing duplicate lines.
                     No functionality yet!!!
 
-    param[in]       const char *infile_name, name of the file to read from
+    param[in]       const char *infile_name1, name of the file to read from
+    param[in]       const char *infile_name2, name of the file to read from
     param[in]       const char *outfile_name, name of the file to write to
 
     return          int, error code
 */
-int mixfiles( const char *infile_name, const char *outfile_name )
+int mixfiles( const char *infile_name1, const char *infile_name2, const char *outfile_name )
     {
     int result = NOERR;
-    FILE * infile;
+    FILE * infile[2];
     FILE * outfile;
-    size_t infile_records;
-    size_t outfile_records;
-    dataset * indata;
-    dataset * outdata;
+    size_t infile_records[2];
+    dataset * indata[2];
+    int idx[2];
 
-    infile = fopen(infile_name, "r");
-    if( infile == 0 )
+    infile[0] = fopen(infile_name1, "r");
+    if( infile[0] == 0 )
         {
         result = errno;
+        debug("%s: \n", infile_name1);
         showerr(result);
         return result;
         }
-    outfile = fopen(outfile_name, "r");
+    infile[1] = fopen(infile_name2, "r");
+    if( infile[1] == 0 )
+        {
+        result = errno;
+        debug("%s: \n", infile_name2);
+        showerr(result);
+        fclose(infile[0]);
+        return result;
+        }
+    outfile = fopen(outfile_name, "w");
     if( outfile == 0 )
         {
         result = errno;
+        debug("%s: \n", outfile_name);
         showerr(result);
-        fclose(infile);
+        fclose(infile[0]);
+        fclose(infile[1]);
         return result;
         }
 
-    result = _getfile(infile, &indata, &infile_records, 1);
-    if( !result )
-        result = _getfile(outfile, &outdata, &outfile_records, 1);
+    result = _getfile(infile[0], &(indata[0]), &(infile_records[0]));
+    if( result )
+        goto mixfiles_err;
+    result = _getfile(infile[1], &(indata[1]), &(infile_records[1]));
+
+    fclose(infile[0]);
+    fclose(infile[1]);
+
     if( result )
         goto mixfiles_err;
 
-    /*
-        here the real functionaliry has to be implemented!
-    */
+    idx[0] = 0;
+    idx[1] = 0;
+    while( ( idx[0] < infile_records[0] ) || ( idx[1] < infile_records[1] ) )
+        {
+        int res = memcmp(indata[0] + idx[0], indata[1] + idx[1], sizeof(dataset)-sizeof(int));
+        if( res == 0 )
+            {
+            printline(indata[0] + idx[0], outfile);
+            ++idx[0];
+            ++idx[1];
+            }
+        else if( res < 0 && ( idx[0] < infile_records[0] ) )
+            {
+            printline(indata[0] + idx[0], outfile);
+            ++idx[0];
+            }
+        else if( idx[1] < infile_records[1] )
+            {
+            printline(indata[1] + idx[1], outfile);
+            ++idx[1];
+            }
+        }
 
 mixfiles_err:
+    free(indata[0]);
+    free(indata[1]);
     fclose(outfile);
-    fclose(infile);
-    free(indata);
-    free(outdata);
     return result;
     }
 
@@ -414,7 +419,7 @@ int csvformat( const char *infile_name, const char *outfile_name )
         return result;
         }
 
-    result = _getfile(infile, &indata, &infile_records, 1);
+    result = _getfile(infile, &indata, &infile_records);
     if( result )
         goto csvformat_err;
     p_indata = indata;
@@ -439,7 +444,7 @@ int csvformat( const char *infile_name, const char *outfile_name )
         *p_line++ = '|';
         if( *p_indata->UTID == 'G' )
             {
-            chars_written = sprintf(p_line, "%d|", p_indata->result);
+            chars_written = sprintf(p_line, "%d|", (int)(p_indata->result));
             p_line += chars_written;
             chars_written = sprintf(p_line, "%s|", p_indata->unit);
             }
@@ -448,7 +453,8 @@ int csvformat( const char *infile_name, const char *outfile_name )
         p_line += chars_written;
         if( *p_indata->UTID == 'I' )
             {
-            chars_written = sprintf(p_line, "%d,%d|", p_indata->result/10, p_indata->result%10);
+            chars_written = sprintf(p_line, "%d,%d|",
+                p_indata->result/10, p_indata->result%10);
             p_line += chars_written;
             chars_written = sprintf(p_line, "%s|", p_indata->unit);
             }
@@ -457,7 +463,7 @@ int csvformat( const char *infile_name, const char *outfile_name )
         p_line += chars_written;
         if( *p_indata->UTID == 'C' )
             {
-            chars_written = sprintf(p_line, "%d|", p_indata->result);
+            chars_written = sprintf(p_line, "%d|", (int)(p_indata->result));
             p_line += chars_written;
             switch( *p_indata->unit )
                 {
@@ -491,100 +497,5 @@ csvformat_err:
     fclose(outfile);
     fclose(infile);
     free(indata);
-    return result;
-    }
-
-
-/*  function        int reformat( const char *infile_name, const char *newfile_name )
-
-    brief           Reads the data from <infile_name> using the data line's
-                    format that was implemented before 30.3.2018. Then it writes
-                    back the data to <newfile_name> using the current data
-                    line's format.
-                    4.5.2018 : output to file "glucotux.tmp".
-
-    param[in]       const char *infile_name, name of the file to read from
-    param[in]       const char *newfile_name, name of the file to write to
-
-    return          int, erro code
-*/
-int reformat( const char *infile_name, const char *newfile_name )
-    {
-    int result = NOERR;
-    char tmpfile_name[] = "glucotux.tmp";
-    FILE * oldfile;
-    FILE * newfile;
-    FILE * tmpfile;
-    int idx_old;
-    int idx_new;
-    size_t oldfile_records;
-    size_t newfile_records;
-    dataset * olddata = 0;
-    dataset * newdata = 0;
-
-    printf("Reformatting %s and %s to %s\n", infile_name, newfile_name, tmpfile_name);
-
-    debug("Opening %s\n", infile_name);
-    oldfile = fopen(infile_name, "r");
-    if( oldfile == 0 )
-        {
-        result = errno;
-        showerr(result);
-        return result;
-        }
-    debug("Opening %s\n", newfile_name);
-    newfile = fopen(newfile_name, "r");
-    if( newfile == 0 )
-        {
-        result = errno;
-        showerr(result);
-        fclose(oldfile);
-        return result;
-        }
-    debug("Opening %s\n", tmpfile_name);
-    tmpfile = fopen(tmpfile_name, "w");
-    if( tmpfile == 0 )
-        {
-        result = errno;
-        showerr(result);
-        fclose(oldfile);
-        fclose(newfile);
-        return result;
-        }
-    result = _getfile(oldfile, &olddata, &oldfile_records, 0);
-    if( !result )
-        result = _getfile(newfile, &newdata, &newfile_records, 1);
-
-    fclose(newfile);
-    fclose(oldfile);
-    if( result )
-        return result;
-
-    idx_old = 0;
-    idx_new = 0;
-    while( ( idx_old < oldfile_records ) || ( idx_new < newfile_records ) )
-        {
-        int res = memcmp(olddata + idx_old, newdata + idx_new, sizeof(dataset)-sizeof(int));
-        if( res == 0 )
-            {
-            _printline(tmpfile, olddata + idx_old);
-            ++idx_old;
-            ++idx_new;
-            }
-        else if( res < 0 && ( idx_old < oldfile_records ) )
-            {
-            _printline(tmpfile, olddata + idx_old);
-            ++idx_old;
-            }
-        else if( idx_new < newfile_records )
-            {
-            _printline(tmpfile, newdata + idx_new);
-            ++idx_new;
-            }
-        }
-
-    free(olddata);
-    free(newdata);
-    fclose(tmpfile);
     return result;
     }

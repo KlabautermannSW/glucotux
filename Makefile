@@ -23,7 +23,7 @@
 #
 #   file        Makefile
 #
-#   date        10.11.2019
+#   date        23.11.2019
 #
 #   author      Uwe Jantzen (jantzen@klabautermann-software.de)
 #
@@ -150,13 +150,13 @@ astm.o : astm.c errors.h globals.h debug.h utils.h contour.h astm.h
 contour.o : contour.c errors.h globals.h debug.h utils.h contour.h
 	$(CC) $(CFLAGS) -c $(DSRC)/contour.c -o $(DOBJ)/contour.o
 
-files.o : files.c errors.h debug.h astm.h utils.h files.h
+files.o : files.c errors.h debug.h astm.h utils.h globals.h files.h
 	$(CC) $(CFLAGS) -c $(DSRC)/files.c -o $(DOBJ)/files.o
 
 debug.o : debug.c globals.h
 	$(CC) $(CFLAGS) -c $(DSRC)/debug.c -o $(DOBJ)/debug.o
 
-utils.o : utils.c globals.h
+utils.o : utils.c utils.h globals.h astm.h errors.h debug.h
 	$(CC) $(CFLAGS) -c $(DSRC)/utils.c -o $(DOBJ)/utils.o
 
 errors.o : errors.c errors.h

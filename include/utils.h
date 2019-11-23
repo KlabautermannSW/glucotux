@@ -23,7 +23,7 @@
 
     file        utils.h
 
-    date        09.11.2019
+    date        23.11.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -46,6 +46,9 @@
 #define __UTILS_H__
 
 
+#include "astm.h"
+
+
 #ifdef _DEBUG_
  #define showbuffer(b,s)                    Showbuffer((b),(s))
 #else
@@ -54,6 +57,7 @@
 
 
 extern unsigned int explode( char * elements, char * str, char delimiter, size_t lines, size_t length );
+extern int printline( dataset * data, FILE * f );
 extern void time2ger( char * dst, char * src );
 extern void rotating_bar( void );
 extern void showhelp( char * name );

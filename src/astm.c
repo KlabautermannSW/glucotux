@@ -23,7 +23,7 @@
 
     file        astm.c
 
-    date        10.11.2019
+    date        23.11.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -373,10 +373,10 @@ static int _interpret_astm_frame( FILE * file, int handle, char * buffer, size_t
                     switch( *(components + (j * LEN_OF_COMPONENTS)) )
                         {
                         case 'M':
-                            *(data.flags + j) = 'N';                            //   "out of regular intervals"
+                            *(data.flags + j) = 'N';                            // "out of regular intervals"
                             break;
                         case 0x00:
-                            *(data.flags + j) = 'O';                            //   "out of regular intervals"
+                            *(data.flags + j) = 'O';                            // "out of regular intervals"
                             break;
                         default:
                             *(data.flags + j) = *components;                    // 'B' : before meal, 'A' : after meal, 'F' : fasting
@@ -389,17 +389,8 @@ static int _interpret_astm_frame( FILE * file, int handle, char * buffer, size_t
                 strncpy(data.timestamp, elements + (8 * LEN_OF_FIELDS), 14);
             else
                 strncpy(data.timestamp, elements + (8 * LEN_OF_FIELDS), 12);
-            if( memcmp(data.UTID, "Insu", 4) == 0 )
-                sprintf(temp_buffer, "%5.1f", (double)data.result / 10.0);
-            else
-                sprintf(temp_buffer, "%5d", data.result);
-            if( file )
-                fprintf(file, "%s %s %-5s  %-9s  %-8s  %c  %4d\n",
-                    data.timestamp, temp_buffer, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
-            if( is_verbose() )
-                printf(" %s %s %-5s  %-9s  %-8s  %c  %4d\n",
-                    data.timestamp, temp_buffer, data.unit, data.flags, data.UTID, data.record_type, data.record_number);
-            else
+            printline(&data, file);
+            if( !is_verbose() )
                 printf("%c%4d", CR, data.record_number);                        // show progress
             fflush(stdout);
             break;

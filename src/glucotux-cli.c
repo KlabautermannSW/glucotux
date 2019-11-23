@@ -80,12 +80,10 @@ int main( int argc, char *argv[] )
 
     if( strlen(get_infile_name(0)) != 0 )
         {
-        if( is_reformat() )
-            reformat(get_infile_name(0), get_outfile_name());
-        else if( is_cvs_out() )
+        if( is_cvs_out() )
             csvformat(get_infile_name(0), get_outfile_name());
         else
-            mixfiles(get_infile_name(0), get_outfile_name());
+            mixfiles(get_infile_name(0), get_infile_name(1), get_outfile_name());
         return result;
         }
 

@@ -23,7 +23,7 @@
 
     file        utils.c
 
-    date        22.11.2019
+    date        23.11.2019
 
     author      Uwe Jantzen (Klabautermann@Klabautermann-Software.de)
 
@@ -47,6 +47,9 @@
 #include <string.h>
 #include <assert.h>
 #include "globals.h"
+#include "errors.h"
+#include "debug.h"
+#include "utils.h"
 
 
 /*  function    int explode( char * elements, char * str, char delimiter,
@@ -108,6 +111,45 @@ unsigned int explode( char * elements, char * str, char delimiter, size_t lines,
         }
 
     return line;
+    }
+
+
+/*  function        int printline( dataset * data, FILE * f )
+
+    brief           Prints one record to the file
+                    Prints it to screen if verbose output and/or debug is
+                    enabled
+
+    param[in]       dataset * data, record to print into the file
+    param[in]       FILE * f, output file's handle
+*/
+int printline( dataset * data, FILE * f )
+    {
+    int error = NOERR;
+    char value[16];
+    char buffer[128];
+
+    if( ( *(data->UTID) == 'I' ) || ( *(data->UTID) == 'W' ) )
+        snprintf(value, 16, "%3d.%d", data->result/10, data->result%10);
+    else
+        snprintf(value, 16, "%5d", data->result);
+    snprintf(buffer, 128, "%-14s  %5s  %-6s  %-9s  %-8s  %c  %4d\n",
+            data->timestamp,
+            value,
+            data->unit,
+            data->flags,
+            data->UTID,
+            data->record_type,
+            data->record_number);
+
+    debug("printline : ");
+    if( is_verbose() || is_debug() )
+        printf("%s", buffer);
+
+    if( fprintf(f, "%s", buffer) < 0 )
+        error = ERR_WRITE_TO_FILE;
+
+    return error;
     }
 
 
@@ -174,30 +216,37 @@ void rotating_bar( void )
 void showhelp( char * name )
     {
     printf("Usage:\n");
+#ifdef NIX
     printf("        %s [options] [-o <outfile> [-i <infile> [-i|-r <infile>]]]\n", name);
+#else
+    printf("        %s [options] [-o <outfile> [-i <infile> [-i <infile>]]]\n", name);
+#endif
     printf("Options:\n");
-    printf("        -o <outfile>  file to put the data in,\n");
-    printf("                      if not set data is printed to screen\n");
-    printf("        -i <infile>   file to get the data from,\n");
-    printf("                      if set data is read from <infile> and sorted into <outfile>\n");
+    printf("        -o <outfile>  File to put the data in,\n");
+    printf("                      if not set, data is printed to screen\n");
+    printf("        -i <infile>   File to get the data from,\n");
+    printf("                      if set, data is read from <infile> and sorted into <outfile>\n");
     printf("                      removing duplicate lines.\n");
     printf("                      <outfile> and <infile> must NOT BE THE SAME!\n");
     printf("        -c            If this option is selected the application reads the data\n");
     printf("                      from <infile> and writes it to <outfile> using CVS format as\n");
     printf("                      follows:\n");
     printf("                      date|time|glucose|glucose unit|insulin|insulin type|carb|carb unit|user mark\n");
+#ifdef NIX
     printf("        -r <infile>   If this option is selected the application reads the data\n");
     printf("                      from <infile> using the data order that was implemented\n");
     printf("                      before 30.3.2018. Then it writes back the data to <outfile>\n");
     printf("                      using the current data order.\n");
+#endif
+    printf("\n");
     printf("           If you give two <infile>s they are mixed and put out to <outfile> (not implemented yet!).\n");
     printf("\n");
-    printf("        -v            enable verbose mode\n");
+    printf("        -v            Enable verbose mode\n");
 #ifdef _DEBUG_
-    printf("        -d            enable debug mode\n");
+    printf("        -d            Enable debug mode\n");
 #endif  //  _DEBUG_
     printf("\n");
-    printf("        -h            show this help then stop without doing anything more\n");
+    printf("        -h            Show this help then stop without doing anything more\n");
     printf("\n");
     printf("\n");
     exit(0);
