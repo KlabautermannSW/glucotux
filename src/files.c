@@ -8,7 +8,7 @@
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MEresultHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
@@ -62,28 +62,27 @@
 
 /*  function        static int _get_num_of_records( FILE * f )
 
-    brief           Calculates the number of data records (lines) in the data
-                    file.
+    brief           Counts the number of lines lines in the data file.
 
     param[in]       FILE * f, data file's handle
 
-    return          long, number of data records
+    return          long, number of lines
 */
 static long _get_num_of_records( FILE * f )
     {
-    int i;
     long l;
     int c;
 
-    for( i = 0, c = 0xff; c != 0x0a; ++i )
+    l = 0;
+    c = 0xffff;
+    while( c != EOF )
+        {
         c = fgetc(f);
-    debug("Line length %d\n", i);
-    fseek(f, 0, SEEK_END);
-    l = ftell(f);
-    debug("File length %ld\n", l);
-    fseek(f, 0, SEEK_SET);
-    l = l / i;
+        if( c == '\n' )
+            ++l;
+        }
     debug("Records found %ld\n", l);
+    fseek(f, 0, SEEK_SET);
 
     return l;
     }
@@ -307,6 +306,19 @@ int mixfiles( const char *infile_name1, const char *infile_name2, const char *ou
     size_t infile_records[2];
     dataset * indata[2];
     int idx[2];
+
+    if( ( infile_name1 == 0 ) || ( infile_name2 == 0 ) )
+        {
+        result = ERR_NO_INFILE;
+        showerr(result);
+        return result;
+        }
+    if( outfile_name == 0 )
+        {
+        result = ERR_NO_LOGFILE;
+        showerr(result);
+        return result;
+        }
 
     infile[0] = fopen(infile_name1, "r");
     if( infile[0] == 0 )

@@ -69,7 +69,8 @@ static char * errors[] =
     "Not enough memory to store data",
     "Error when writing to a file",
     "Number of input files out of range [0 .. 2]",
-    "Unit string read from meter device is longer than expected"
+    "Unit string read from meter device is longer than expected",
+    "No output file name(s) given"
     };
 
 

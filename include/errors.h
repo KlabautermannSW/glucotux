@@ -71,6 +71,7 @@
 #define ERR_WRITE_TO_FILE                           -18
 #define ERR_NUM_OF_INFILES                          -19
 #define ERR_UNIT_STRING_TOO_LONG                    -20
+#define ERR_NO_INFILE                               -21
 
 
 extern void showerr( int error );
