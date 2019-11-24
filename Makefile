@@ -63,8 +63,8 @@ DBIN := bin
 OBJ := glucotux.o mainwindow.o graphs.o astm.o contour.o files.o debug.o utils.o errors.o getargs.o globals.o version.o
 OBJ_CLI := glucotux-cli.o astm.o contour.o files.o debug.o utils.o errors.o getargs.o globals.o version.o
 
-VERSION := 1.00
-VERSION_CLI := 0.03
+VERSION := 0.01
+VERSION_CLI := 0.99
 HAVEGIT =
 ifneq ($(wildcard $(shell which git)), )
  HAVEGIT := $(wildcard .git/COMMIT_EDITMSG)
